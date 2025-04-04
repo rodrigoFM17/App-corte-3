@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "223216872022",
+    "project_id": "appcorte3-53239",
+    "storage_bucket": "appcorte3-53239.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223216872022:android:06307bad283348c33ee9f7",
+        "android_client_info": {
+          "package_name": "com.example.appcorte3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDCzQ7Q_ZLI_wr9mBtsHsNVlrhZicL2w4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
