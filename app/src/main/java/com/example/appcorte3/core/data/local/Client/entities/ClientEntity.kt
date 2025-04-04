@@ -11,5 +11,7 @@ data class ClientEntity(
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "phone")
-    val phone: String
+    val phone: String,
+    @ColumnInfo(name = "sended")
+    val sended: Boolean
 )
