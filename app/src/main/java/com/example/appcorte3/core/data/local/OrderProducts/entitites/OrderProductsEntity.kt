@@ -32,5 +32,7 @@ data class OrderProductsEntity(
     @ColumnInfo(name = "order_id")
     val orderId: Int,
     @ColumnInfo(name = "product_id")
-    val productId: Int
+    val productId: Int,
+    @ColumnInfo(name = "quantity")
+    val quantity: Int
 )
