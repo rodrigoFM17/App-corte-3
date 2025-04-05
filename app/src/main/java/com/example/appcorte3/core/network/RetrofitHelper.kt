@@ -1,5 +1,8 @@
 package com.example.appcorte3.core.network
 
+import com.example.appcorte3.Clients.data.datasource.ClientService
+import com.example.appcorte3.Orders.data.datasource.OrdersService
+import com.example.appcorte3.Products.data.datasource.ProductsService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -27,6 +30,18 @@ object RetrofitHelper {
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
+    }
+
+    val clientRemoteService: ClientService by lazy {
+        retrofit.create(ClientService::class.java)
+    }
+
+    val orderRemoteService: OrdersService by lazy {
+        retrofit.create(OrdersService::class.java)
+    }
+
+    val productsRemoteService: ProductsService by lazy {
+        retrofit.create(ProductsService::class.java)
     }
 //
 //    val loginService: LoginService by lazy {

@@ -23,4 +23,6 @@ interface ClientDAO {
     @Delete
     suspend fun deleteClient(client: ClientEntity)
 
+    @Query("SELECT * FROM Clients where sended = 0")
+    suspend fun getNoSendedClients(): List<ClientEntity>
 }

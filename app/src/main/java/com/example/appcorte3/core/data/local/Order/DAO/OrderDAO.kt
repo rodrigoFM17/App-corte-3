@@ -24,4 +24,7 @@ interface OrderDAO {
     @Query("UPDATE Orders set completed = 1 where id = :id")
     suspend fun completeOrderById(id: Int)
 
+    @Query("SELECT * FROM Orders where sended = 0")
+    suspend fun getNoSendedOrders(): List<OrderEntity>
+
 }

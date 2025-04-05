@@ -20,8 +20,8 @@ import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
     indices = [Index(value = ["client_id"])]
 )
 data class OrderEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
     @ColumnInfo(name = "client_id")
     val clientId: Int,
     @ColumnInfo(name = "total")
@@ -31,5 +31,5 @@ data class OrderEntity(
     @ColumnInfo(name = "completed")
     val completed: Boolean,
     @ColumnInfo(name = "sended")
-val sended: Boolean
+    val sended: Boolean
 )

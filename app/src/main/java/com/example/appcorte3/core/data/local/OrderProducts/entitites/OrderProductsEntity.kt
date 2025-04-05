@@ -27,8 +27,8 @@ import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
     indices = [Index(value = ["order_id"]), Index(value = ["product_id"])]
 )
 data class OrderProductsEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
     @ColumnInfo(name = "order_id")
     val orderId: Int,
     @ColumnInfo(name = "product_id")

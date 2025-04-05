@@ -11,8 +11,8 @@ enum class UNIT {
 
 @Entity( tableName = "Products")
 data class ProductEntity (
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
     @ColumnInfo(name = "name")
     val name: String,
     @ColumnInfo(name = "price")

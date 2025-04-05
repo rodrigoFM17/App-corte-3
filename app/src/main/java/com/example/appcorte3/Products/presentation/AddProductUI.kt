@@ -25,6 +25,7 @@ import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
 fun AddProductScreen( productsViewModel: ProductsViewModel) {
@@ -92,9 +93,11 @@ fun AddProductScreen( productsViewModel: ProductsViewModel) {
                     productsViewModel.viewModelScope.launch {
                         productsViewModel.insertProduct(
                             ProductEntity(
+                                id = UUID.randomUUID().toString(),
                             name = name,
                             price = price,
-                            unit = unit!!
+                            unit = unit!!,
+                                sended = false
                         )
                         )
                     }

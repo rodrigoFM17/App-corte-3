@@ -15,7 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -52,6 +54,10 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
     val clients by ordersViewModel.clients.observeAsState(emptyList())
     val products by ordersViewModel.products.observeAsState(emptyList())
     val clientSelected by ordersViewModel.clientSelected.observeAsState(null)
+    val quantity by ordersViewModel.quantity.observeAsState(1)
+    val total by ordersViewModel.total.observeAsState(0f)
+
+    val productsForOrder by ordersViewModel.productsForOrder.observeAsState(emptyList())
 
     LaunchedEffect(Unit) {
         ordersViewModel.viewModelScope.launch {
@@ -120,7 +126,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
         Spacer(modifier = Modifier.height(20.dp))
 
         if (products.isEmpty()) {
-            Text( text = "aun no tienes ningun producto registrado, registra uno para empezar a registrar productos")
+            Text( text = "aun no tienes ningun producto registrado, registra uno para empezar a registrar pedidos")
         } else {
             LazyColumn (
                 modifier = Modifier
@@ -140,10 +146,49 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                 }
 
             }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row {
+                ButtonComponent(
+                    icon = Icons.Default.Add,
+                    onClick = ordersViewModel::onIncrementQuantity,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Text( text = quantity.toString())
+
+                ButtonComponent(
+                    icon = Icons.Default.Remove,
+                    onClick = ordersViewModel::onDecrementQuantity,
+                    modifier = Modifier.weight(1f)
+                )
+
+            }
         }
 
+        if (productsForOrder.isNotEmpty()) {
+            LazyColumn (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(Color(0xFF353535))
 
+            ) {
 
+                items(productsForOrder) {
+                        product ->
+                    Row {
+                        Text( text = product.product.name, modifier = Modifier.weight(2f))
+                        Text(text = product.quantity.toString(), modifier = Modifier.weight(1f))
+                    }
+                }
+
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text( text = total.toString())
+
+        }
 
     }
 }

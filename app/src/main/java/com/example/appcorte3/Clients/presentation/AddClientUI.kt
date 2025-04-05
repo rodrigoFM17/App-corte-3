@@ -9,6 +9,7 @@ import com.example.appcorte3.components.TextFieldComponent
 import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
 fun AddClient(clientsViewModel: ClientsViewModel) {
@@ -38,9 +39,11 @@ fun AddClient(clientsViewModel: ClientsViewModel) {
                 clientsViewModel.viewModelScope.launch {
                     clientsViewModel.insertClient(
                         ClientEntity(
-                        name = name,
-                        phone = phone
-                    )
+                            id = UUID.randomUUID().toString(),
+                            name = name,
+                            phone = phone,
+                            sended = false
+                        )
                     )
                 }
             }
