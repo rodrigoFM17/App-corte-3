@@ -76,7 +76,53 @@ object BluetoothHelper {
         }
     }
 
+    fun printOrderTicket(socket: BluetoothSocket?, particularDetailedOrder: ParticularDetailedOrder) {
+        try {
+            val outputStream: OutputStream? = socket?.outputStream
+            if (outputStream == null) return
 
+            val ESC = 0x1B.toByte()
+            val GS = 0x1D.toByte()
+
+            outputStream.write(byteArrayOf(ESC, '@'.code.toByte()))
+
+
+            outputStream.write(byteArrayOf(ESC, 'a' .code.toByte(), 1)) // centrar texto
+            outputStream.write(byteArrayOf(ESC, '!' .code.toByte(), 0x01)) // doble ancho de texto
+            outputStream.write("TICKET DE PEDIDO\n\n".toByteArray(Charsets.UTF_8))
+            outputStream.write(byteArrayOf(GS, '!' .code.toByte(), 0x00)) // Reset tamaño
+
+            outputStream.write(byteArrayOf(ESC, 'a' .code.toByte(), 0)) // alinear a la izquierda
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+            val fechaActual = dateFormat.format(Date())
+            outputStream.write("Cliente: ${particularDetailedOrder.clientName}\nFecha: $fechaActual\n".toByteArray(Charsets.UTF_8))
+
+            outputStream.write("Producto         Cant   Precio\n".toByteArray(Charsets.UTF_8))
+            outputStream.write("--------------------------------\n".toByteArray(Charsets.UTF_8))
+
+            for (product in particularDetailedOrder.orderProducts) {
+                val name = product.name.take(15).padEnd(15)
+                val qty = product.quantity.toString().padStart(5)
+                val price = "$%.2f".format(product.price).padStart(8)
+                outputStream.write("$name$qty$price\n".toByteArray(Charsets.UTF_8))
+            }
+
+            outputStream.write("--------------------------------\n".toByteArray(Charsets.UTF_8))
+
+            // Total en negrita
+            outputStream.write(byteArrayOf(ESC, 'E'.code.toByte(), 1)) // Negrita ON
+            outputStream.write("TOTAL: $%.2f\n".format(particularDetailedOrder.total).toByteArray(Charsets.UTF_8))
+            outputStream.write(byteArrayOf(ESC, 'E'.code.toByte(), 0)) // Negrita OFF
+
+            // Mensaje final centrado
+            outputStream.write(byteArrayOf(ESC, 'a'.code.toByte(), 1)) // Centrar
+            outputStream.write("\n¡Gracias por su compra!\n\n".toByteArray(Charsets.UTF_8))
+
+            outputStream.flush()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
 
     fun closeConnection(socket: BluetoothSocket?) {
         try {
