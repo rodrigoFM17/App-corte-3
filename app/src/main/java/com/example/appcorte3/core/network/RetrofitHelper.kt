@@ -1,6 +1,7 @@
 package com.example.appcorte3.core.network
 
 import com.example.appcorte3.Clients.data.datasource.ClientService
+import com.example.appcorte3.Orders.data.datasource.OrdersProductsService
 import com.example.appcorte3.Orders.data.datasource.OrdersService
 import com.example.appcorte3.Products.data.datasource.ProductsService
 import okhttp3.OkHttpClient
@@ -10,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitHelper {
-    private const val BASE_URL = "http://3.226.75.51/api/"
+    private const val BASE_URL = "http://192.168.100.34:3000/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -42,6 +43,10 @@ object RetrofitHelper {
 
     val productsRemoteService: ProductsService by lazy {
         retrofit.create(ProductsService::class.java)
+    }
+
+    val orderProductsRemoteService: OrdersProductsService by lazy {
+        retrofit.create(OrdersProductsService::class.java)
     }
 //
 //    val loginService: LoginService by lazy {

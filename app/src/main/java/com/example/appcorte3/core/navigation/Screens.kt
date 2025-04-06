@@ -16,3 +16,6 @@ object AddProduct
 
 @Serializable
 object AddOrder
+
+@Serializable
+object AddClient

@@ -1,6 +1,8 @@
 package com.example.appcorte3.Products.presentation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,12 +41,13 @@ fun ProductsScreen(productsViewModel: ProductsViewModel) {
         ButtonComponent(
             onClick = productsViewModel.navigateToAddProduct,
             icon = Icons.Default.Add,
-            text = "Agregar un producto"
+            text = "Agregar un producto",
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(20.dp))
 
-        LazyColumn {
-            items(products) { product ->
+        Column {
+            for(product in products) {
                 ProductCard(product)
             }
 

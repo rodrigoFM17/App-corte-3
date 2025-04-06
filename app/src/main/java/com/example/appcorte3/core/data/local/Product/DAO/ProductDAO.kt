@@ -16,6 +16,12 @@ interface ProductDAO {
     @Query("SELECT * FROM Products")
     suspend fun getAllProduct(): List<ProductEntity>
 
+    @Query("SELECT * FROM Products where sended = 0")
+    suspend fun getNoSendedProducts(): List<ProductEntity>
+
+    @Query("UPDATE Products set sended = 1 where id = :productId")
+    suspend fun markProductAsSended(productId: String)
+
     @Query("UPDATE Products SET price = :price WHERE id = :productId")
     suspend fun updateProductPrice(price: Float, productId: Int)
 

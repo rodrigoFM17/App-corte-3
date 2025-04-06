@@ -9,12 +9,6 @@ import retrofit2.http.PUT
 
 interface ClientService {
 
-    @POST("sync/clients/upload")
-    suspend fun syncClient(@Body body: List<ClientBody>) : Response<Any>
-
-    @GET("sync/clients")
-    suspend fun getNewClients(): Response<Any>
-
-    @PUT("sync/clients/downloaded")
-    suspend fun syncDownloadedClients(@Body body: List<Int>): Response<Any>
+    @POST("clients")
+    suspend fun syncClient(@Body body: ClientBody) : Response<Any>
 }

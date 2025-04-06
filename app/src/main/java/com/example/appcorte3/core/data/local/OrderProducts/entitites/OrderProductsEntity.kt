@@ -30,9 +30,9 @@ data class OrderProductsEntity(
     @PrimaryKey
     val id: String,
     @ColumnInfo(name = "order_id")
-    val orderId: Int,
+    val orderId: String,
     @ColumnInfo(name = "product_id")
-    val productId: Int,
+    val productId: String,
     @ColumnInfo(name = "quantity")
     val quantity: Int,
     @ColumnInfo(name = "sended")

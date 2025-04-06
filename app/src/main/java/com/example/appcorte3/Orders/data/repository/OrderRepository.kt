@@ -1,6 +1,7 @@
 package com.example.appcorte3.Orders.data.repository
 
 import android.content.Context
+import com.example.appcorte3.Orders.data.model.OrderDetail
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
 import com.example.appcorte3.core.data.local.appDatabase.DatabaseProvider
 
@@ -13,7 +14,7 @@ class OrderRepository(context: Context) {
         orderDAO.insertOrder(order)
     }
 
-    suspend fun getAllPending(): List<OrderEntity> {
+    suspend fun getAllPending(): List<OrderDetail> {
         return orderDAO.getAllPendingOrders()
     }
 

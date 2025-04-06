@@ -17,4 +17,7 @@ interface OrderProductDAO {
 
     @Query("SELECT * FROM OrderProducts where sended = 0")
     suspend fun getNoSendedOrderProducts(): List<OrderProductsEntity>
+
+    @Query("UPDATE OrderProducts SET sended = 1 WHERE id = :orderProductId")
+    suspend fun markOrderProductAsSended(orderProductId: String)
 }

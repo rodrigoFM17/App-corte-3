@@ -1,8 +1,10 @@
 package com.example.appcorte3.Orders.data.model
 
 data class OrderResponse(
-    val client_id: Int,
+    val id: String,
+    val client_id: String,
     val total: Float,
     val date: Long,
-    val completed: Boolean,
+    val completed: Int,
+    val sended: Int
 )

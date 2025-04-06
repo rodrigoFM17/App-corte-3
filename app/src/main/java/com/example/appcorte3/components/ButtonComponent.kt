@@ -1,5 +1,6 @@
 package com.example.appcorte3.components
 
+import android.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,7 +43,10 @@ fun ButtonComponent (
                     contentDescription = contentDescription,
                     tint = if (negative) { Color(0xFF7AB317) } else { Color.White} )
             }
-            Text( text = text)
+            Text(
+                text = text,
+                color = if(!negative){ Color.White } else { Color(0xFF7AB317) }
+                )
         }
     }
 }

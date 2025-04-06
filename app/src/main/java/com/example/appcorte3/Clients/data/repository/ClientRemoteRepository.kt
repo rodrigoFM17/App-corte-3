@@ -10,7 +10,7 @@ class ClientRemoteRepository {
 
     suspend fun syncClient(clientBody: ClientBody):  Result<Any>{
         return try {
-            val response = clientRemoteService.insertClient(clientBody)
+            val response = clientRemoteService.syncClient(clientBody)
 
             if(response.isSuccessful){
                 Result.success(response.body()!!)
@@ -21,10 +21,4 @@ class ClientRemoteRepository {
             Result.failure(e)
         }
     }
-
-    suspend fun
-
-
-
-
 }

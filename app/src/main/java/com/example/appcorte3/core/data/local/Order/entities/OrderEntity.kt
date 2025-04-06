@@ -23,7 +23,7 @@ data class OrderEntity(
     @PrimaryKey
     val id: String,
     @ColumnInfo(name = "client_id")
-    val clientId: Int,
+    val clientId: String,
     @ColumnInfo(name = "total")
     val total: Float,
     @ColumnInfo(name = "date")

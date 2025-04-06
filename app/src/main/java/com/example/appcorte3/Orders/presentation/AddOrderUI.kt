@@ -3,14 +3,14 @@ package com.example.appcorte3.Orders.presentation
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,12 +32,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
+import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProductsEntity
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.UUID
 
 @Composable
 fun AddOrderScreen(ordersViewModel: OrdersViewModel){
@@ -56,6 +62,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
     val clientSelected by ordersViewModel.clientSelected.observeAsState(null)
     val quantity by ordersViewModel.quantity.observeAsState(1)
     val total by ordersViewModel.total.observeAsState(0f)
+    val date by ordersViewModel.date.observeAsState(0)
 
     val productsForOrder by ordersViewModel.productsForOrder.observeAsState(emptyList())
 
@@ -114,7 +121,9 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
             ).show()
         }
 
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             ButtonComponent(
                 icon = Icons.Default.CalendarMonth,
                 onClick = { showDialog = true}
@@ -126,58 +135,95 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
         Spacer(modifier = Modifier.height(20.dp))
 
         if (products.isEmpty()) {
-            Text( text = "aun no tienes ningun producto registrado, registra uno para empezar a registrar pedidos")
+            Text( text = "Aun no tienes ningun producto registrado, registra uno para empezar a registrar pedidos.")
         } else {
-            LazyColumn (
+            Text(
+                text = "Toca un producto para agregarlo al pedido, asegurate que la cantidad actual sea la que quieras.",
+                fontSize = 10.sp,
+                lineHeight = 12.sp
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Column (
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
                     .background(Color(0xFF353535))
-
             ) {
 
+                Spacer(modifier = Modifier
+                    .background(Color(0xFF7AB317))
+                    .height(10.dp)
+                    .fillMaxWidth()
+                )
 
-                items(products) {
-                        product ->
-                    Row {
+                for ((i, product) in products.withIndex()) {
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
+                            .padding(10.dp)
+                            .clickable {
+                            ordersViewModel.onAddProduct(product, quantity)
+                        }
+                    ) {
                         Text( text = product.name, modifier = Modifier.weight(2f))
                         Text(text = product.price.toString(), modifier = Modifier.weight(1f))
                     }
                 }
 
             }
-            Spacer(modifier = Modifier.height(20.dp))
 
+            Spacer(modifier = Modifier.height(10.dp))
             Row {
                 ButtonComponent(
                     icon = Icons.Default.Add,
                     onClick = ordersViewModel::onIncrementQuantity,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    negative = true
                 )
 
-                Text( text = quantity.toString())
+                Text(
+                    text = quantity.toString(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .weight(2f)
+                        .align(Alignment.CenterVertically)
+                )
 
                 ButtonComponent(
                     icon = Icons.Default.Remove,
                     onClick = ordersViewModel::onDecrementQuantity,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    negative = true
                 )
-
             }
+            Spacer(modifier = Modifier.height(10.dp))
+
         }
 
         if (productsForOrder.isNotEmpty()) {
-            LazyColumn (
+            Column (
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
                     .background(Color(0xFF353535))
+                    .verticalScroll(rememberScrollState())
 
             ) {
-
-                items(productsForOrder) {
-                        product ->
-                    Row {
+                Spacer(modifier = Modifier
+                    .background(Color(0xFF7AB317))
+                    .height(10.dp)
+                    .fillMaxWidth()
+                )
+                for( (i, product) in productsForOrder.withIndex()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
+                            .padding(10.dp)
+                    ) {
                         Text( text = product.product.name, modifier = Modifier.weight(2f))
                         Text(text = product.quantity.toString(), modifier = Modifier.weight(1f))
                     }
@@ -190,5 +236,31 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
 
         }
 
+        ButtonComponent(
+            text = "Guardar Pedido",
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                val orderId = UUID.randomUUID().toString()
+                ordersViewModel.viewModelScope.launch {
+                    ordersViewModel.insertOrder(OrderEntity(
+                        id = orderId,
+                        date = date,
+                        clientId = clientSelected!!.id,
+                        total = total,
+                        completed = false,
+                        sended = false
+                    ))
+                    for (product in productsForOrder) {
+                        ordersViewModel.insertOrderProduct(OrderProductsEntity(
+                            id = UUID.randomUUID().toString(),
+                            orderId = orderId,
+                            quantity = product.quantity,
+                            productId = product.product.id,
+                            sended = false
+                        ))
+                    }
+                }
+            }
+        )
     }
 }

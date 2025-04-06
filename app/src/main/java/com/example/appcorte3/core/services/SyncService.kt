@@ -1,15 +1,42 @@
 package com.example.appcorte3.core.services
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.IBinder
+import android.util.Log
+import androidx.compose.runtime.traceEventEnd
+import androidx.core.app.NotificationCompat
+import com.example.appcorte3.Clients.data.model.ClientBody
 import com.example.appcorte3.Clients.data.repository.ClientRemoteRepository
+import com.example.appcorte3.Orders.data.model.OrderBody
+import com.example.appcorte3.Orders.data.model.OrderProductBody
+import com.example.appcorte3.Orders.data.model.OrderResponse
+import com.example.appcorte3.Orders.data.repository.OrderProductsRemoteRepository
 import com.example.appcorte3.Orders.data.repository.OrderRemoteRepository
+import com.example.appcorte3.Orders.domain.GetNewsOrderProductsUseCase
+import com.example.appcorte3.Orders.domain.GetNewsOrdersUseCase
+import com.example.appcorte3.Products.data.model.ProductBody
 import com.example.appcorte3.Products.data.repository.ProductRemoteRepository
+import com.example.appcorte3.R
+import com.example.appcorte3.core.data.local.Client.DAO.ClientDAO
+import com.example.appcorte3.core.data.local.Order.DAO.OrderDAO
+import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
+import com.example.appcorte3.core.data.local.OrderProducts.DAO.OrderProductDAO
+import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProductsEntity
+import com.example.appcorte3.core.data.local.Product.DAO.ProductDAO
 import com.example.appcorte3.core.data.local.appDatabase.AppDataBase
 import com.example.appcorte3.core.data.local.appDatabase.DatabaseProvider
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -21,10 +48,21 @@ class SyncService : Service() {
     private val clientRemoteRepository = ClientRemoteRepository()
     private val orderRemoteRepository = OrderRemoteRepository()
     private val productRemoteRepository = ProductRemoteRepository()
+    private val orderProductsRemoteRepository = OrderProductsRemoteRepository()
+
+    private lateinit var clientDAO: ClientDAO
+    private lateinit var productDAO: ProductDAO
+    private lateinit var orderDAO: OrderDAO
+    private lateinit var orderProductDAO: OrderProductDAO
 
     override fun onCreate() {
         super.onCreate()
         db = DatabaseProvider.getDatabase(this)
+
+        clientDAO = db.clientDAO()
+        productDAO = db.productDAO()
+        orderDAO = db.orderDAO()
+        orderProductDAO = db.orderProductDAO()
 
         startForeground(1, createNotification())
         startSync()
@@ -34,150 +72,137 @@ class SyncService : Service() {
         return null
     }
 
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+
     private fun startSync() {
         scope.launch {
+            FirebaseMessaging.getInstance().subscribeToTopic("new_orders")
             while (true) {
-                syncClients()
-                syncProducts()
-                downloadNewOrders()
-                uploadPendingOrders()
+                if(isNetworkAvailable()){
+                    syncClients()
+                    syncProducts()
+                    syncNewOrders()
+                    syncNewOrderProducts()
+                }
                 delay(10000) // Sincroniza cada 30 segundos
             }
         }
     }
 
     private suspend fun syncClients() {
-        val clientsToSend = db.clientDAO().getNoSendedClients()
+        val clientsToSend = clientDAO.getNoSendedClients()
 
-        if(clientsToSend.isNotEmpty()){
-            clientRemoteRepository
-
+        for (clientToSend in clientsToSend) {
+            clientRemoteRepository.syncClient(ClientBody(
+                id = clientToSend.id,
+                name = clientToSend.name,
+                phone = clientToSend.phone
+            ))
+            clientDAO.markClientAsSended(clientToSend.id)
         }
 
-        try {
+    }
 
+    private suspend fun syncProducts() {
 
-            val response = fetchFromServer("$serverUrl/clients")
-            val clientsArray = JSONArray(response)
+        val productsToSend = productDAO.getNoSendedProducts()
 
-            for (i in 0 until clientsArray.length()) {
-                val clientJson = clientsArray.getJSONObject(i)
-
-            }
-        } catch (e: Exception) {
-            Log.e("SyncService", "Error sincronizando clientes: ${e.message}")
+        for (productToSend in productsToSend) {
+            productRemoteRepository.insertProduct(ProductBody(
+                id = productToSend.id,
+                name = productToSend.name,
+                price = productToSend.price,
+                unit = productToSend.unit
+            ))
+            productDAO.markProductAsSended(productToSend.id)
         }
     }
 
-    private fun syncProducts() {
-        try {
-            val response = fetchFromServer("$serverUrl/products")
-            val productsArray = JSONArray(response)
+    private suspend fun syncNewOrders() {
+        val getNewsOrdersUseCase = GetNewsOrdersUseCase()
+        val result = getNewsOrdersUseCase()
+        var ordersToDownload = emptyList<OrderResponse>()
 
-            for (i in 0 until productsArray.length()) {
-                val productJson = productsArray.getJSONObject(i)
-                db.productDao().insertOrUpdate(productJson.getInt("id"), productJson.getString("name"), productJson.getDouble("price").toFloat(), productJson.getString("unit"))
-            }
-        } catch (e: Exception) {
-            Log.e("SyncService", "Error sincronizando productos: ${e.message}")
+        result.onSuccess { data ->
+            ordersToDownload = data
+        }
+
+        Log.d("API ORDERS", ordersToDownload.toString())
+
+        for (order in ordersToDownload) {
+            orderDAO.insertOrder(OrderEntity(
+                id = order.id,
+                date = order.date,
+                total = order.total,
+                clientId = order.client_id,
+                completed = order.completed != 0,
+                sended = true
+            ))
+            orderRemoteRepository.markOrderAsSended(order.id)
+        }
+
+        val ordersToSend = orderDAO.getNoSendedOrders()
+
+        for (orderToSend in ordersToSend) {
+            orderRemoteRepository.insertOrder(OrderBody(
+                id = orderToSend.id,
+                client_id = orderToSend.clientId,
+                total = orderToSend.total,
+                completed = orderToSend.completed,
+                date = orderToSend.date
+            ))
+            orderDAO.markOrderAsSended(orderToSend.id)
         }
     }
 
-    private fun downloadNewOrders() {
-        try {
-            val response = fetchFromServer("$serverUrl/orders")
-            val ordersArray = JSONArray(response)
+    private suspend fun syncNewOrderProducts() {
+        val getNewsOrderProductsUseCase = GetNewsOrderProductsUseCase()
+        val orderProductsToDownload = getNewsOrderProductsUseCase()
 
-            for (i in 0 until ordersArray.length()) {
-                val orderJson = ordersArray.getJSONObject(i)
-                val orderId = orderJson.getInt("id")
-
-                if (db.orderDao().getOrderById(orderId) == null) {
-                    val order = OrderEntity(
-                        id = orderId,
-                        clientId = orderJson.getInt("client_id"),
-                        total = orderJson.getDouble("total").toFloat(),
-                        date = orderJson.getLong("date"),
-                        completed = orderJson.getBoolean("completed"),
-                        sended = true
-                    )
-                    db.orderDao().insert(order)
-
-                    val productsArray = orderJson.getJSONArray("products")
-                    for (j in 0 until productsArray.length()) {
-                        val productJson = productsArray.getJSONObject(j)
-                        val orderProduct = OrderProductsEntity(
-                            orderId = orderId,
-                            productId = productJson.getInt("product_id"),
-                            quantity = productJson.getInt("quantity"),
-                            sended = true
-                        )
-                        db.orderProductsDao().insert(orderProduct)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("SyncService", "Error descargando pedidos: ${e.message}")
+        for (orderProduct in orderProductsToDownload) {
+            orderProductDAO.insertOrderProduct(OrderProductsEntity(
+                id = orderProduct.id,
+                productId = orderProduct.product_id,
+                orderId = orderProduct.order_id,
+                quantity = orderProduct.quantity,
+                sended = true
+            ))
+            orderProductsRemoteRepository.markOrderProductsAsSended(orderProduct.id)
         }
-    }
 
-    private fun uploadPendingOrders() {
-        val pendingOrders = db.orderDao().getUnsendedOrders()
+        val orderProductsToSend = orderProductDAO.getNoSendedOrderProducts()
 
-        for (order in pendingOrders) {
-            val orderJson = JSONObject()
-            orderJson.put("client_id", order.clientId)
-            orderJson.put("total", order.total)
-            orderJson.put("date", order.date)
-            orderJson.put("completed", order.completed)
-
-            val productsArray = JSONArray()
-            val orderProducts = db.orderProductsDao().getByOrderId(order.id)
-            for (product in orderProducts) {
-                val productJson = JSONObject()
-                productJson.put("product_id", product.productId)
-                productJson.put("quantity", product.quantity)
-                productsArray.put(productJson)
-            }
-
-            orderJson.put("products", productsArray)
-
-            try {
-                postToServer("$serverUrl/orders", orderJson.toString())
-                db.orderDao().markAsSended(order.id)
-            } catch (e: Exception) {
-                Log.e("SyncService", "Error subiendo pedido: ${e.message}")
-            }
+        for(orderProductToSend in orderProductsToSend) {
+            orderProductsRemoteRepository.insertOrderProduct(OrderProductBody(
+                id = orderProductToSend.id,
+                order_id = orderProductToSend.orderId,
+                product_id = orderProductToSend.productId,
+                quantity = orderProductToSend.quantity
+            ))
+            orderProductDAO.markOrderProductAsSended(orderProductToSend.id)
         }
     }
 
     private fun createNotification(): Notification {
         val channelId = "sync_service"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Sync Service", NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(channelId, "Sync Service", NotificationManager.IMPORTANCE_HIGH)
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
 
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("Sincronización en segundo plano")
             .setContentText("Manteniendo los datos actualizados...")
-            .setSmallIcon(R.drawable.ic_sync)
+            .setSmallIcon(R.drawable.logo)
             .build()
     }
 
-    private fun fetchFromServer(url: String): String {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        return connection.inputStream.bufferedReader().readText()
-    }
-
-    private fun postToServer(url: String, jsonBody: String) {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "application/json")
-        connection.doOutput = true
-        connection.outputStream.write(jsonBody.toByteArray())
-        connection.inputStream.bufferedReader().readText()
-    }
 
     override fun onDestroy() {
         super.onDestroy()

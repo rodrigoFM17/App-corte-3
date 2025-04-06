@@ -5,11 +5,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.appcorte3.Clients.data.repository.ClientsRepository
+import com.example.appcorte3.Orders.data.model.OrderDetail
 import com.example.appcorte3.Orders.data.model.ProductForOrder
+import com.example.appcorte3.Orders.data.repository.OrderProductRepository
 import com.example.appcorte3.Orders.data.repository.OrderRepository
 import com.example.appcorte3.Products.data.repository.ProductRepository
 import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
+import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProductsEntity
 import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
 
 class OrdersViewModel(context: Context, val navigateToAddOrder: () -> Unit) : ViewModel() {
@@ -17,10 +20,11 @@ class OrdersViewModel(context: Context, val navigateToAddOrder: () -> Unit) : Vi
     private val orderRepository = OrderRepository(context)
     private val productsRepository = ProductRepository(context)
     private val clientRepository = ClientsRepository(context)
+    private val orderProductRepository = OrderProductRepository(context)
 
-    private val _orders = MutableLiveData<List<OrderEntity>>()
+    private val _orders = MutableLiveData<List<OrderDetail>>()
 
-    val orders : LiveData<List<OrderEntity>> = _orders
+    val orders : LiveData<List<OrderDetail>> = _orders
 
     suspend fun getAllPendingOrders() {
         _orders.value = orderRepository.getAllPending()
@@ -73,7 +77,7 @@ class OrdersViewModel(context: Context, val navigateToAddOrder: () -> Unit) : Vi
         products.forEach({
             product ->
             run {
-                total += product.product.price
+                total += product.product.price * product.quantity
             }
         })
 
@@ -104,6 +108,10 @@ class OrdersViewModel(context: Context, val navigateToAddOrder: () -> Unit) : Vi
 
     suspend fun insertOrder(order: OrderEntity) {
         orderRepository.insertOrder(order)
+    }
+
+    suspend fun insertOrderProduct(orderProductsEntity: OrderProductsEntity) {
+        orderProductRepository.insertOrder(orderProductsEntity)
     }
 
 

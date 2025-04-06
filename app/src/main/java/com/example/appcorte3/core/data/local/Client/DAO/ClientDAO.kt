@@ -25,4 +25,7 @@ interface ClientDAO {
 
     @Query("SELECT * FROM Clients where sended = 0")
     suspend fun getNoSendedClients(): List<ClientEntity>
+
+    @Query("UPDATE Clients set sended = 1 where id = :clientId")
+    suspend fun markClientAsSended(clientId: String)
 }

@@ -11,6 +11,4 @@ interface ProductsService {
     @POST("products")
     suspend fun insertProduct(@Body body: ProductBody): Response<Any>
 
-    @GET("sync/products")
-    suspend fun getNewProducts(): Response<Any>
 }

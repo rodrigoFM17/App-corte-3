@@ -1,18 +1,15 @@
 package com.example.appcorte3.Orders.data.repository
 
-import android.util.Log
-import com.example.appcorte3.Clients.data.model.ClientBody
-import com.example.appcorte3.Orders.data.model.OrderBody
-import com.example.appcorte3.Orders.data.model.OrderResponse
+import com.example.appcorte3.Orders.data.model.OrderProductBody
 import com.example.appcorte3.core.network.RetrofitHelper
 
-class OrderRemoteRepository {
+class OrderProductsRemoteRepository {
 
-    private val orderRemoteRepository = RetrofitHelper.orderRemoteService
+    private val orderProductsRemoteService = RetrofitHelper.orderProductsRemoteService
 
-    suspend fun insertOrder (orderBody: OrderBody):  Result<Any>{
+    suspend fun insertOrderProduct(orderProductBody: OrderProductBody): Result<Any> {
         return try {
-            val response = orderRemoteRepository.insertOrder(orderBody)
+            val response = orderProductsRemoteService.insertOrderProduct(orderProductBody)
 
             if(response.isSuccessful){
                 Result.success(response.body()!!)
@@ -24,9 +21,9 @@ class OrderRemoteRepository {
         }
     }
 
-    suspend fun getNewOrders() : Result<List<OrderResponse>> {
+    suspend fun getNewOrderProducts(): Result<List<OrderProductBody>> {
         return try {
-            val response = orderRemoteRepository.getNewOrders()
+            val response = orderProductsRemoteService.getNewOrderProducts()
 
             if(response.isSuccessful){
                 Result.success(response.body()!!)
@@ -38,9 +35,9 @@ class OrderRemoteRepository {
         }
     }
 
-    suspend fun markOrderAsSended(orderId: String) : Result<Any> {
+    suspend fun markOrderProductsAsSended(orderId: String): Result<Any> {
         return try {
-            val response = orderRemoteRepository.markOrderAsSended(orderId)
+            val response = orderProductsRemoteService.markOrderProductAsCompleted(orderId)
 
             if(response.isSuccessful){
                 Result.success(response.body()!!)
@@ -51,6 +48,5 @@ class OrderRemoteRepository {
             Result.failure(e)
         }
     }
-
 
 }

@@ -1,8 +1,10 @@
 package com.example.appcorte3.Clients.presentation
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.components.ButtonComponent
 import com.example.appcorte3.components.TextFieldComponent
@@ -12,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @Composable
-fun AddClient(clientsViewModel: ClientsViewModel) {
+fun AddClientScreen(clientsViewModel: ClientsViewModel) {
 
     val name by clientsViewModel.name.observeAsState("")
     val phone by clientsViewModel.phone.observeAsState("")
@@ -35,6 +37,7 @@ fun AddClient(clientsViewModel: ClientsViewModel) {
 
         ButtonComponent(
             text = "Guardar",
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 clientsViewModel.viewModelScope.launch {
                     clientsViewModel.insertClient(
