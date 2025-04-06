@@ -5,7 +5,7 @@ import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProduc
 data class ParticularDetailedOrder (
     val id: String,
     val clientName: String,
-    val total: String,
-    val date: String,
-    val orderProducts: List<OrderProductsEntity>
+    val total: Float,
+    val date: Long,
+    val orderProducts: List<OrderProductDetailed>
     )

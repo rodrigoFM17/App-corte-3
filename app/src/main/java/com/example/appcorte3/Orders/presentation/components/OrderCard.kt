@@ -1,6 +1,7 @@
 package com.example.appcorte3.Orders.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +27,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun OrderCard (order: OrderDetail) {
+fun OrderCard (order: OrderDetail, onSelectOrder: () -> Unit) {
 
     fun formatTimestamp(timestamp: Long): String {
         val date = Date(timestamp)
@@ -39,6 +40,9 @@ fun OrderCard (order: OrderDetail) {
             .fillMaxWidth()
             .background(Color(0xFF353535))
             .padding(15.dp)
+            .clickable {
+                onSelectOrder()
+            }
     ){
         Text(
             text = "$ ${order.total}",

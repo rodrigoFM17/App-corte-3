@@ -1,6 +1,7 @@
 package com.example.appcorte3.core.navigation
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import com.example.appcorte3.Clients.presentation.ClientsViewModel
 import com.example.appcorte3.Orders.presentation.AddOrderScreen
 import com.example.appcorte3.Orders.presentation.OrdersScreen
 import com.example.appcorte3.Orders.presentation.OrdersViewModel
+import com.example.appcorte3.Orders.presentation.ParticularOrderScreen
 import com.example.appcorte3.Products.presentation.AddProductScreen
 import com.example.appcorte3.Products.presentation.ProductsScreen
 import com.example.appcorte3.Products.presentation.ProductsViewModel
@@ -25,7 +27,7 @@ import com.google.gson.reflect.TypeToken
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun NavigationWrapper() {
+fun NavigationWrapper(activity: Activity) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
@@ -38,7 +40,9 @@ fun NavigationWrapper() {
 
     val ordersViewModel = OrdersViewModel(
         context = context,
-        {navController.navigate(AddOrder)}
+        {navController.navigate(AddOrder)},
+        {navController.navigate(ParticularOrder)},
+        activity = activity
     )
 
     val clientsViewModel = ClientsViewModel(
@@ -76,6 +80,10 @@ fun NavigationWrapper() {
 
             composable<AddClient> {
                 AddClientScreen(clientsViewModel)
+            }
+
+            composable<ParticularOrder> {
+                ParticularOrderScreen(ordersViewModel)
             }
         }
     }

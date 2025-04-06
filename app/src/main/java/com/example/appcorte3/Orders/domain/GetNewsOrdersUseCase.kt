@@ -20,6 +20,4 @@ class GetNewsOrdersUseCase {
 
         return result
     }
-
-
 }

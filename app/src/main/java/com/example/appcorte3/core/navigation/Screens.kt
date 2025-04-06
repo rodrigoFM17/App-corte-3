@@ -19,3 +19,6 @@ object AddOrder
 
 @Serializable
 object AddClient
+
+@Serializable
+object ParticularOrder

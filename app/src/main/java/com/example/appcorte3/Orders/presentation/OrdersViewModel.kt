@@ -1,22 +1,40 @@
 package com.example.appcorte3.Orders.presentation
 
+import android.Manifest
+import android.app.Activity
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothSocket
 import android.content.Context
+import android.content.pm.PackageManager
+import android.util.Log
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.appcorte3.Clients.data.repository.ClientsRepository
 import com.example.appcorte3.Orders.data.model.OrderDetail
+import com.example.appcorte3.Orders.data.model.ParticularDetailedOrder
 import com.example.appcorte3.Orders.data.model.ProductForOrder
 import com.example.appcorte3.Orders.data.repository.OrderProductRepository
 import com.example.appcorte3.Orders.data.repository.OrderRepository
+import com.example.appcorte3.Orders.domain.GetParticularOrderUseCase
 import com.example.appcorte3.Products.data.repository.ProductRepository
 import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
 import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProductsEntity
 import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
+import com.example.appcorte3.core.hardware.BluetoothHelper
+import kotlin.collections.Set
 
-class OrdersViewModel(context: Context, val navigateToAddOrder: () -> Unit) : ViewModel() {
+class OrdersViewModel(
+    context: Context,
+    val navigateToAddOrder: () -> Unit,
+    val navigateToParticularOrder: () -> Unit,
+    private val activity: Activity
+) : ViewModel() {
 
+    private val getParticularOrderUseCase = GetParticularOrderUseCase(context)
     private val orderRepository = OrderRepository(context)
     private val productsRepository = ProductRepository(context)
     private val clientRepository = ClientsRepository(context)
@@ -114,5 +132,55 @@ class OrdersViewModel(context: Context, val navigateToAddOrder: () -> Unit) : Vi
         orderProductRepository.insertOrder(orderProductsEntity)
     }
 
+    // Particular order
+
+    var socket: BluetoothSocket? = null
+
+    private val _bluetoothDevices = MutableLiveData<Set<BluetoothDevice>>(emptySet<BluetoothDevice>())
+    private val _showDevices = MutableLiveData<Boolean>()
+
+    val showDevices : LiveData<Boolean> = _showDevices
+    val bluetoothDevices: LiveData<Set<BluetoothDevice>> = _bluetoothDevices
+
+    fun setPairedDevices (context: Context) {
+        if(BluetoothHelper.checkAndRequestPermissions(activity)){
+            _bluetoothDevices.value = BluetoothHelper.getPairedDevices(context)
+            Log.d("Bluetooth", _bluetoothDevices.value?.size.toString())
+        }
+    }
+
+    fun connectToPrinter (context: Context, device: BluetoothDevice) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+            socket = BluetoothHelper.connectToPrinter(device, context)
+            Toast.makeText(context, "Conectado a ${device.name}", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permiso de Bluetooth no concedido", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val _particularOrderId = MutableLiveData<String>()
+    private val _particularOrder = MutableLiveData<ParticularDetailedOrder>()
+
+    val particularDetailedOrder : LiveData<ParticularDetailedOrder> = _particularOrder
+    val particularOrderId : LiveData<String> = _particularOrderId
+
+    fun onSelectParticular(orderId: String) {
+        _particularOrderId.value = orderId
+    }
+
+    suspend fun getParticularOrder(orderId: String) {
+        val particularOrder = getParticularOrderUseCase(orderId)
+        _particularOrder.value = particularOrder
+    }
+
+    fun printTicket(context: Context, particularDetailedOrder: ParticularDetailedOrder){
+
+        if (socket == null) {
+             setPairedDevices(context)
+            _showDevices.value = true
+        } else {
+            BluetoothHelper.printOrderTicket(socket, particularDetailedOrder)
+        }
+    }
 
 }

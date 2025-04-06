@@ -12,6 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.appcorte3.Orders.data.model.ParticularDetailedOrder
 import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
@@ -75,30 +76,7 @@ object BluetoothHelper {
         }
     }
 
-    fun printOrderTicket(socket: BluetoothSocket?, goal: GoalDTO) {
-        try {
-            val outputStream: OutputStream? = socket?.outputStream
-            if (outputStream == null) return
 
-            val ESC = 0x1B.toByte()
-            val GS = 0x1D.toByte()
-
-            outputStream.write(byteArrayOf(ESC, '@'.code.toByte()))
-
-
-            outputStream.write(byteArrayOf(GS, '!' .code.toByte(), 0x11))
-            outputStream.write("${goal.title}\n".toByteArray(Charsets.UTF_8))
-            outputStream.write(byteArrayOf(GS, '!' .code.toByte(), 0x00)) // Reset tamaño
-
-            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-            val fechaActual = dateFormat.format(Date())
-            outputStream.write("Enhorabuena!! has completado tu meta, continua asi y lograras todo lo que te propongas\ncomplecion: $fechaActual\n".toByteArray(Charsets.UTF_8))
-
-            outputStream.flush()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
 
     fun closeConnection(socket: BluetoothSocket?) {
         try {

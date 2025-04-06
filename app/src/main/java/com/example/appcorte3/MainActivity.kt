@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Appcorte3Theme {
-                NavigationWrapper()
+                NavigationWrapper(this)
             }
         }
     }
@@ -31,6 +31,5 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     Appcorte3Theme {
-        NavigationWrapper()
     }
 }

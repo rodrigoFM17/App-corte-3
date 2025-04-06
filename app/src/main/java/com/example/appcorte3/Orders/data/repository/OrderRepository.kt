@@ -18,7 +18,7 @@ class OrderRepository(context: Context) {
         return orderDAO.getAllPendingOrders()
     }
 
-    suspend fun getOrderById(id: Int): OrderEntity {
+    suspend fun getOrderById(id: String): OrderDetail {
         return orderDAO.getOrderById(id)
     }
 }

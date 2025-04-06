@@ -19,8 +19,8 @@ interface OrderDAO {
     @Query("SELECT * FROM Orders where completed = 1")
     suspend fun getAllCompletedOrders(): List<OrderEntity>
 
-    @Query("SELECT * FROM Orders where id = :id")
-    suspend fun getOrderById(id: Int): OrderEntity
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE Orders.id = :id")
+    suspend fun getOrderById(id: String): OrderDetail
 
     @Query("UPDATE Orders set completed = 1 where id = :id")
     suspend fun completeOrderById(id: Int)
