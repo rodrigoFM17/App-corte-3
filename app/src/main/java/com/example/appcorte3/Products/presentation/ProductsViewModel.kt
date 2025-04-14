@@ -11,7 +11,8 @@ import com.example.appcorte3.core.data.local.Product.entities.UNIT
 
 class ProductsViewModel (
     context: Context,
-    val navigateToAddProduct: () -> Unit
+    val navigateToAddProduct: () -> Unit,
+    val navigateToParticularProduct: () -> Unit
 ) : ViewModel() {
 
     private val productRepository = ProductRepository(context)
@@ -39,11 +40,6 @@ class ProductsViewModel (
 
         _price.value = value.toFloat()
 
-//        if( value.matches(Regex("^\\d*\\.?\\d*\$"))) {
-//
-//            _price.value = value.toFloatOrNull()
-//
-//        }
     }
 
     fun onChangeUnit(value: UNIT) {
@@ -53,4 +49,24 @@ class ProductsViewModel (
     suspend fun insertProduct(product: ProductEntity) {
         productRepository.insertProduct(product)
     }
+
+    // particular Product
+
+    private val _selectedProduct = MutableLiveData<ProductEntity>()
+    var selectedProduct : LiveData<ProductEntity> = _selectedProduct
+
+    fun onSelectProduct(product: ProductEntity) {
+        _selectedProduct.value = product
+        navigateToParticularProduct()
+    }
+
+    fun onChangeProductUnit(unit: UNIT) {
+        var product = _selectedProduct.value
+
+        if (product != null) {
+            product.unit = unit
+        }
+    }
+
+
 }

@@ -18,7 +18,7 @@ data class ProductEntity (
     @ColumnInfo(name = "price")
     val price: Float,
     @ColumnInfo(name = "unit")
-    val unit: UNIT,
+    var unit: UNIT,
     @ColumnInfo(name = "sended")
     val sended: Boolean
 )
