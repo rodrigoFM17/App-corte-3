@@ -14,9 +14,9 @@ data class ProductEntity (
     @PrimaryKey
     val id: String,
     @ColumnInfo(name = "name")
-    val name: String,
+    var name: String,
     @ColumnInfo(name = "price")
-    val price: Float,
+    var price: Float,
     @ColumnInfo(name = "unit")
     var unit: UNIT,
     @ColumnInfo(name = "sended")

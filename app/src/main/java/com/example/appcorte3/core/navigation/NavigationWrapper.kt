@@ -17,6 +17,7 @@ import com.example.appcorte3.Orders.presentation.OrdersScreen
 import com.example.appcorte3.Orders.presentation.OrdersViewModel
 import com.example.appcorte3.Orders.presentation.ParticularOrderScreen
 import com.example.appcorte3.Products.presentation.AddProductScreen
+import com.example.appcorte3.Products.presentation.ParticularProductScreen
 import com.example.appcorte3.Products.presentation.ProductsScreen
 import com.example.appcorte3.Products.presentation.ProductsViewModel
 import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
@@ -35,7 +36,8 @@ fun NavigationWrapper(activity: Activity) {
 
     val productsViewModel = ProductsViewModel(
         context = context,
-        navigateToAddProduct = {navController.navigate(AddProduct)}
+        navigateToAddProduct = {navController.navigate(AddProduct)},
+        navigateToParticularProduct = {navController.navigate(ParticularProduct)}
     )
 
     val ordersViewModel = OrdersViewModel(
@@ -84,6 +86,10 @@ fun NavigationWrapper(activity: Activity) {
 
             composable<ParticularOrder> {
                 ParticularOrderScreen(ordersViewModel)
+            }
+
+            composable<ParticularProduct> {
+                ParticularProductScreen(productsViewModel)
             }
         }
     }

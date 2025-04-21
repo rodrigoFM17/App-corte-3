@@ -16,4 +16,8 @@ class ProductRepository(context: Context) {
         return productDAO.getAllProduct()
     }
 
+    suspend fun updateProduct(product: ProductEntity) {
+        productDAO.updateProduct(product)
+    }
+
 }

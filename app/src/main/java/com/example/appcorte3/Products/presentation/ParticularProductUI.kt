@@ -1,6 +1,8 @@
 package com.example.appcorte3.Products.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,23 +26,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.components.TextFieldComponent
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
-import kotlin.math.exp
+import com.example.appcorte3.core.navigation.ParticularProduct
+import kotlinx.coroutines.launch
 
 @Composable
-fun ParticularOrderScreen(
+fun ParticularProductScreen(
     productsViewModel: ProductsViewModel
 ) {
 
     val product by productsViewModel.selectedProduct.observeAsState()
     var showUnits by remember { mutableStateOf(false) }
 
+    val name by productsViewModel.productName.observeAsState("")
+    val price by productsViewModel.productPrice.observeAsState("")
+
     Container(
-        headerTitle = "Product"
+        headerTitle = "Edicion de Producto"
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -48,24 +55,30 @@ fun ParticularOrderScreen(
         ) {
 
             product?.let {
-                Text(
-                    text = it.name,
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Spacer(modifier = Modifier.height(20.dp))
 
-                Text(
-                    text = it.price.toString(),
-                    fontSize = 20.sp,
+                TextFieldComponent(
+                    placeholder = name,
+                    value = name,
+                    spacerHeight = 20.dp,
+                    modifier = Modifier.fillMaxWidth(),
+                    onValueChange = productsViewModel::onChangeProductName
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+
+                TextFieldComponent(
+                    placeholder = price.toString(),
+                    value = price.toString(),
+                    spacerHeight = 20.dp,
+                    modifier = Modifier.fillMaxWidth(),
+                    onValueChange = productsViewModel::onChangeProductPrice
+                )
 
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF353535))
                         .padding(10.dp)
+                        .clickable { showUnits = !showUnits },
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = it.unit.toString(),
@@ -77,29 +90,34 @@ fun ParticularOrderScreen(
                 DropdownMenu(
                     expanded = showUnits,
                     onDismissRequest = {showUnits = false},
-                    modifier = Modifier.fillMaxWidth()
                 ) {
                     if (it.unit == UNIT.INT) {
                         DropdownMenuItem(
                             text = { Text( text = UNIT.FRACC.toString()) },
-                            onClick = {productsViewModel.onChangeProductUnit(UNIT.FRACC)}
+                            onClick = {
+                                productsViewModel.onChangeProductUnit(UNIT.FRACC)
+                                showUnits = false
+                            }
                         )
                     } else {
                         DropdownMenuItem(
                             text = { Text( text = UNIT.INT.toString()) },
-                            onClick = {productsViewModel.onChangeProductUnit(UNIT.INT)}
+                            onClick = {
+                                productsViewModel.onChangeProductUnit(UNIT.INT)
+                                showUnits = false
+                            }
                         )
                     }
                 }
 
+                Spacer(modifier = Modifier.height(20.dp))
 
                 ButtonComponent(
                     text = "Guardar cambios",
-                    onClick =
+                    onClick = {productsViewModel.viewModelScope.launch {
+                        productsViewModel.onSaveChanges(it)
+                    }}
                 )
-
-
-
             }
                 ?: Text(text = "No existe este producto")
 

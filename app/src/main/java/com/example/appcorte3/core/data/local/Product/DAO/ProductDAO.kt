@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
 
 @Dao
@@ -22,8 +23,8 @@ interface ProductDAO {
     @Query("UPDATE Products set sended = 1 where id = :productId")
     suspend fun markProductAsSended(productId: String)
 
-    @Query("UPDATE Products SET price = :price WHERE id = :productId")
-    suspend fun updateProductPrice(price: Float, productId: Int)
+    @Update
+    suspend fun updateProduct(product: ProductEntity)
 
     @Delete
     suspend fun deleteProduct(product: ProductEntity)

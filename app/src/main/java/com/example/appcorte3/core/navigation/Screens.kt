@@ -22,3 +22,6 @@ object AddClient
 
 @Serializable
 object ParticularOrder
+
+@Serializable
+object ParticularProduct

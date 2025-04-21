@@ -37,8 +37,11 @@ class ProductsViewModel (
     }
 
     fun onChangePrice(value: String) {
+        val newPrice = value.toFloatOrNull()
 
-        _price.value = value.toFloat()
+        if(newPrice != null) {
+            _price.value = newPrice!!
+        }
 
     }
 
@@ -55,9 +58,34 @@ class ProductsViewModel (
     private val _selectedProduct = MutableLiveData<ProductEntity>()
     var selectedProduct : LiveData<ProductEntity> = _selectedProduct
 
+    private val _productName = MutableLiveData<String>()
+    private val _productPrice = MutableLiveData<Float>()
+
+    val productName : LiveData<String> = _productName
+    val productPrice: LiveData<Float> = _productPrice
+
     fun onSelectProduct(product: ProductEntity) {
         _selectedProduct.value = product
+        _productName.value = product.name
+        _productPrice.value = product.price
         navigateToParticularProduct()
+    }
+
+    fun onChangeProductName(name: String) {
+        _productName.value = name
+        val newProduct = _selectedProduct.value
+        newProduct!!.name = name
+        _selectedProduct.value = newProduct!!
+    }
+
+    fun onChangeProductPrice(value: String) {
+        val newPrice = value.toFloatOrNull()
+        if(newPrice != null) {
+            _productPrice.value = newPrice!!
+            val newProduct = _selectedProduct.value
+            newProduct!!.price = newPrice
+            _selectedProduct.value = newProduct!!
+        }
     }
 
     fun onChangeProductUnit(unit: UNIT) {
@@ -66,6 +94,10 @@ class ProductsViewModel (
         if (product != null) {
             product.unit = unit
         }
+    }
+
+    suspend fun onSaveChanges(product: ProductEntity) {
+        productRepository.updateProduct(product)
     }
 
 

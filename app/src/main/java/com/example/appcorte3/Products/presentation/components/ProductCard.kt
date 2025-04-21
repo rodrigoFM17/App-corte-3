@@ -1,6 +1,7 @@
 package com.example.appcorte3.Products.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,9 @@ fun ProductCard(
             .fillMaxWidth()
             .background(Color(0xFF353535))
             .padding(15.dp)
+            .clickable {
+                onSelect()
+            }
     ){
         Text(
             text = product.name,
