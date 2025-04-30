@@ -15,10 +15,4 @@ interface OrderProductDAO {
 
     @Query("SELECT OrderProducts.id, OrderProducts.quantity, Products.name, Products.price FROM OrderProducts INNER JOIN Products on OrderProducts.product_id = Products.id where order_id = :orderId")
     suspend fun getProductsByOrderId(orderId: String) : List<OrderProductDetailed>
-
-    @Query("SELECT * FROM OrderProducts where sended = 0")
-    suspend fun getNoSendedOrderProducts(): List<OrderProductsEntity>
-
-    @Query("UPDATE OrderProducts SET sended = 1 WHERE id = :orderProductId")
-    suspend fun markOrderProductAsSended(orderProductId: String)
 }

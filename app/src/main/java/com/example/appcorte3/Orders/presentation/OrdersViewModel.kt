@@ -24,8 +24,16 @@ import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
 import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProductsEntity
 import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
+import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.core.hardware.BluetoothHelper
 import kotlin.collections.Set
+
+enum class FRACC_OPTIONS {
+    NONE,
+    QUARTER,
+    HALF,
+    THREE_QUARTERS
+}
 
 class OrdersViewModel(
     context: Context,
@@ -52,15 +60,22 @@ class OrdersViewModel(
 
     private val _clients = MutableLiveData<List<ClientEntity>>()
     private val _products = MutableLiveData<List<ProductEntity>>()
+    private val _selectedProduct = MutableLiveData<ProductEntity>()
 
     private val _clientSelected = MutableLiveData<ClientEntity>()
+    private val _fraccQuantity = MutableLiveData<FRACC_OPTIONS>(FRACC_OPTIONS.NONE)
+    private val _fraccString = MutableLiveData<String>()
+    private val _fraccDecimal = MutableLiveData<Int>(0)
     private val _productsForOrder = MutableLiveData<List<ProductForOrder>>()
     private val _quantity = MutableLiveData<Int>()
     private val _date = MutableLiveData<Long>()
     private val _total = MutableLiveData<Float>()
 
     val quantity : LiveData<Int> = _quantity
+    val fraccQuantity : LiveData<FRACC_OPTIONS> = _fraccQuantity
+    val fraccString : LiveData<String> = _fraccString
     val clients : LiveData<List<ClientEntity>> = _clients
+    val selectedProduct : LiveData<ProductEntity> = _selectedProduct
     val products : LiveData<List<ProductEntity>> = _products
     val total : LiveData<Float> = _total
 
@@ -76,8 +91,41 @@ class OrdersViewModel(
         _date.value = value
     }
 
-    fun onAddProduct(product: ProductEntity, quantity: Int) {
+    fun onSelectProduct(product: ProductEntity) {
+        _selectedProduct.value = product
+    }
+
+    fun onSetFraccQuantity(fraccOption: FRACC_OPTIONS) {
+        _fraccQuantity.value = fraccOption
+
+        when (fraccOption) {
+            FRACC_OPTIONS.NONE -> {
+                _fraccString.value = "1/1"
+                _fraccDecimal.value = 0
+            }
+            FRACC_OPTIONS.QUARTER -> {
+                _fraccString.value = "1/4"
+                _fraccDecimal.value = 25
+            }
+            FRACC_OPTIONS.HALF -> {
+                _fraccString.value = "1/2"
+                _fraccDecimal.value = 50
+            }
+            FRACC_OPTIONS.THREE_QUARTERS -> {
+                _fraccString.value = "3/4"
+                _fraccDecimal.value = 75
+            }
+        }
+    }
+
+    fun onAddProduct() {
+
         val products = _productsForOrder.value?.toMutableList() ?: mutableListOf()
+        val product = _selectedProduct.value!!
+        var quantity = _quantity.value!!.toFloat()
+        if(product.unit == UNIT.FRACC) {
+            quantity = "${_quantity.value}.${_fraccDecimal.value}".toFloat()
+        }
 
         products.add(ProductForOrder(
             product,

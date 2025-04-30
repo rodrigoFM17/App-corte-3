@@ -9,9 +9,9 @@ data class ClientEntity(
     @PrimaryKey
     val id: String,
     @ColumnInfo(name = "name")
-    val name: String,
+    var name: String,
     @ColumnInfo(name = "phone")
-    val phone: String,
+    var phone: String,
     @ColumnInfo(name = "sended")
     val sended: Boolean
 )

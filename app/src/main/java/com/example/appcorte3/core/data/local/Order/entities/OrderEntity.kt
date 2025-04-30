@@ -30,6 +30,6 @@ data class OrderEntity(
     val date: Long,
     @ColumnInfo(name = "completed")
     val completed: Boolean,
-    @ColumnInfo(name = "sended")
-    val sended: Boolean
+    @ColumnInfo(name = "paid")
+    val paid: Boolean
 )

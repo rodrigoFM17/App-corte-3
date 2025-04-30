@@ -2,7 +2,6 @@ package com.example.appcorte3.Clients.presentation
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -13,15 +12,18 @@ import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
 import java.util.UUID
+import androidx.compose.runtime.getValue
 
 @Composable
-fun AddClientScreen(clientsViewModel: ClientsViewModel) {
+fun ParticularClientScreen(
+    clientsViewModel: ClientsViewModel,
+) {
 
     val name by clientsViewModel.name.observeAsState("")
     val phone by clientsViewModel.phone.observeAsState("")
 
     Container(
-        headerTitle = "Agregar Cliente"
+        headerTitle = "Editar Cliente"
     ) {
 
         TextFieldComponent(
@@ -45,14 +47,7 @@ fun AddClientScreen(clientsViewModel: ClientsViewModel) {
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 clientsViewModel.viewModelScope.launch {
-                    clientsViewModel.insertClient(
-                        ClientEntity(
-                            id = UUID.randomUUID().toString(),
-                            name = name,
-                            phone = phone,
-                            sended = false
-                        )
-                    )
+                    clientsViewModel.updateClient()
                 }
             }
         )

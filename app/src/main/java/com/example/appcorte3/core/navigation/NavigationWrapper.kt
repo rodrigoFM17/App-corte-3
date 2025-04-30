@@ -2,7 +2,6 @@ package com.example.appcorte3.core.navigation
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -12,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.appcorte3.Clients.presentation.AddClientScreen
 import com.example.appcorte3.Clients.presentation.ClientsScreen
 import com.example.appcorte3.Clients.presentation.ClientsViewModel
+import com.example.appcorte3.Clients.presentation.ParticularClientScreen
 import com.example.appcorte3.Orders.presentation.AddOrderScreen
 import com.example.appcorte3.Orders.presentation.OrdersScreen
 import com.example.appcorte3.Orders.presentation.OrdersViewModel
@@ -21,7 +21,6 @@ import com.example.appcorte3.Products.presentation.ParticularProductScreen
 import com.example.appcorte3.Products.presentation.ProductsScreen
 import com.example.appcorte3.Products.presentation.ProductsViewModel
 import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
-import com.example.appcorte3.core.services.SyncService
 import com.example.appcorte3.core.storage.StorageManager
 import com.example.appcorte3.layouts.BottomNavigationBar
 import com.google.gson.reflect.TypeToken
@@ -32,12 +31,11 @@ fun NavigationWrapper(activity: Activity) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    val clientStorage = StorageManager<ClientEntity>(context = context, storageName = "client", object : TypeToken<ClientEntity>() {}.type)
-
     val productsViewModel = ProductsViewModel(
         context = context,
         navigateToAddProduct = {navController.navigate(AddProduct)},
-        navigateToParticularProduct = {navController.navigate(ParticularProduct)}
+        navigateToParticularProduct = {navController.navigate(ParticularProduct)},
+        navigateToProducts = {navController.popBackStack()}
     )
 
     val ordersViewModel = OrdersViewModel(
@@ -49,13 +47,10 @@ fun NavigationWrapper(activity: Activity) {
 
     val clientsViewModel = ClientsViewModel(
         context = context,
-        clientStorage = clientStorage,
         navigateToAddClient = {navController.navigate(AddClient)},
-        navigateToParticularClient = {}
+        navigateToParticularClient = {navController.navigate(ParticularClient)},
+        navigateBack = {navController.popBackStack()}
     )
-
-    val intent = Intent(context, SyncService::class.java)
-    context.startService(intent)
 
     Scaffold(
         bottomBar = {BottomNavigationBar(navController)}
@@ -90,6 +85,10 @@ fun NavigationWrapper(activity: Activity) {
 
             composable<ParticularProduct> {
                 ParticularProductScreen(productsViewModel)
+            }
+
+            composable<ParticularClient> {
+                ParticularClientScreen(clientsViewModel)
             }
         }
     }

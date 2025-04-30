@@ -16,4 +16,8 @@ class ClientsRepository(context: Context) {
     suspend fun getAllClients(): List<ClientEntity>{
         return clientDAO.getAllClients()
     }
+
+    suspend fun updateClient(client: ClientEntity) {
+        clientDAO.updateClient(client)
+    }
 }

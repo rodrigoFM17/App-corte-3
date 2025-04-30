@@ -109,7 +109,7 @@ fun ParticularOrderScreen(ordersViewModel: OrdersViewModel) {
                     ) {
                         Text( text = product.quantity.toString(), modifier = Modifier.weight(1f))
                         Text( text = product.name, modifier = Modifier.weight(2f))
-                        Text(text = "$ ${product.price}", modifier = Modifier.weight(1f))
+                        Text(text = "$ ${product.price * product.quantity}", modifier = Modifier.weight(1f))
                     }
                 }
 

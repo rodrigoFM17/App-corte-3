@@ -32,7 +32,8 @@ fun ClientCard(client: ClientEntity, navigateParticularClient: () -> Unit) {
     ) {
         Text(
             text = client.name,
-            fontSize = 30.sp
+            fontSize = 30.sp,
+            lineHeight = 30.sp
         )
 
         Row {

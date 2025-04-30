@@ -28,4 +28,5 @@ interface ClientDAO {
 
     @Query("UPDATE Clients set sended = 1 where id = :clientId")
     suspend fun markClientAsSended(clientId: String)
+
 }

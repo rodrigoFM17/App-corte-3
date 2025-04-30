@@ -3,6 +3,7 @@ package com.example.appcorte3.Products.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import com.example.appcorte3.Products.presentation.components.PriceInput
 import com.example.appcorte3.components.ButtonComponent
 import com.example.appcorte3.components.TextFieldComponent
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
@@ -44,7 +46,8 @@ fun ParticularProductScreen(
     var showUnits by remember { mutableStateOf(false) }
 
     val name by productsViewModel.productName.observeAsState("")
-    val price by productsViewModel.productPrice.observeAsState("")
+    val integers by productsViewModel.priceIntegers.observeAsState(0)
+    val decimals by productsViewModel.priceDecimals.observeAsState(0)
 
     Container(
         headerTitle = "Edicion de Producto"
@@ -64,56 +67,62 @@ fun ParticularProductScreen(
                     onValueChange = productsViewModel::onChangeProductName
                 )
 
-                TextFieldComponent(
-                    placeholder = price.toString(),
-                    value = price.toString(),
-                    spacerHeight = 20.dp,
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = productsViewModel::onChangeProductPrice
+                PriceInput(
+                    integers = integers,
+                    decimals = decimals,
+                    onChangePriceIntegers = productsViewModel::onChangePriceIntegers,
+                    onChangePriceDecimals = productsViewModel::onChangePriceDecimals
                 )
 
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFF353535))
-                        .padding(10.dp)
-                        .clickable { showUnits = !showUnits },
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = it.unit.toString(),
-                    )
-                    Icon(Icons.Default.ArrowDropDown,
-                        contentDescription = "desplegar")
-                }
+                Spacer(modifier = Modifier.height(20.dp))
 
-                DropdownMenu(
-                    expanded = showUnits,
-                    onDismissRequest = {showUnits = false},
-                ) {
-                    if (it.unit == UNIT.INT) {
-                        DropdownMenuItem(
-                            text = { Text( text = UNIT.FRACC.toString()) },
-                            onClick = {
-                                productsViewModel.onChangeProductUnit(UNIT.FRACC)
-                                showUnits = false
-                            }
+                Box {
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF353535))
+                            .padding(10.dp)
+                            .clickable { showUnits = !showUnits },
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = it.unit.toString(),
                         )
-                    } else {
-                        DropdownMenuItem(
-                            text = { Text( text = UNIT.INT.toString()) },
-                            onClick = {
-                                productsViewModel.onChangeProductUnit(UNIT.INT)
-                                showUnits = false
-                            }
-                        )
+                        Icon(Icons.Default.ArrowDropDown,
+                            contentDescription = "desplegar")
+                    }
+
+                    DropdownMenu(
+                        expanded = showUnits,
+                        onDismissRequest = {showUnits = false},
+                    ) {
+                        if (it.unit == UNIT.INT) {
+                            DropdownMenuItem(
+                                text = { Text( text = UNIT.FRACC.toString()) },
+                                onClick = {
+                                    productsViewModel.onChangeProductUnit(UNIT.FRACC)
+                                    showUnits = false
+                                }
+                            )
+                        } else {
+                            DropdownMenuItem(
+                                text = { Text( text = UNIT.INT.toString()) },
+                                onClick = {
+                                    productsViewModel.onChangeProductUnit(UNIT.INT)
+                                    showUnits = false
+                                }
+                            )
+                        }
                     }
                 }
+
+
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 ButtonComponent(
                     text = "Guardar cambios",
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = {productsViewModel.viewModelScope.launch {
                         productsViewModel.onSaveChanges(it)
                     }}

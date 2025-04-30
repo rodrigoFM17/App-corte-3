@@ -1,9 +1,11 @@
 package com.example.appcorte3.Orders.presentation
 
+import android.R
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,10 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.components.DropdownMenuComponent
+import com.example.appcorte3.components.MenuItem
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
 import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProductsEntity
+import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
+import java.nio.file.WatchEvent
 import java.util.Calendar
 import java.util.UUID
 
@@ -59,8 +65,10 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
 
     val clients by ordersViewModel.clients.observeAsState(emptyList())
     val products by ordersViewModel.products.observeAsState(emptyList())
+    val selectedProduct by ordersViewModel.selectedProduct.observeAsState()
     val clientSelected by ordersViewModel.clientSelected.observeAsState(null)
     val quantity by ordersViewModel.quantity.observeAsState(1)
+    val fraccQuantity by ordersViewModel.fraccString.observeAsState("1/1")
     val total by ordersViewModel.total.observeAsState(0f)
     val date by ordersViewModel.date.observeAsState(0)
 
@@ -138,7 +146,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
             Text( text = "Aun no tienes ningun producto registrado, registra uno para empezar a registrar pedidos.")
         } else {
             Text(
-                text = "Toca un producto para agregarlo al pedido, asegurate que la cantidad actual sea la que quieras.",
+                text = "Selecciona un producto",
                 fontSize = 10.sp,
                 lineHeight = 12.sp
             )
@@ -148,6 +156,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                     .fillMaxWidth()
                     .height(150.dp)
                     .background(Color(0xFF353535))
+                    .verticalScroll(rememberScrollState())
             ) {
 
                 Spacer(modifier = Modifier
@@ -163,7 +172,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                             .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
                             .padding(10.dp)
                             .clickable {
-                            ordersViewModel.onAddProduct(product, quantity)
+                            ordersViewModel.onSelectProduct(product)
                         }
                     ) {
                         Text( text = product.name, modifier = Modifier.weight(2f))
@@ -174,7 +183,25 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Row {
+            Text(
+                text = selectedProduct?.name ?: "",
+                color = Color(0xFF7AB317),
+                fontWeight = FontWeight.Bold,
+                fontSize = 25.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "Ingresa la cantidad deseada",
+                fontSize = 10.sp,
+                lineHeight = 12.sp
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 ButtonComponent(
                     icon = Icons.Default.Add,
                     onClick = ordersViewModel::onIncrementQuantity,
@@ -182,15 +209,34 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                     negative = true
                 )
 
-                Text(
-                    text = quantity.toString(),
-                    textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .weight(2f)
-                        .align(Alignment.CenterVertically)
-                )
+                ) {
+                    Text(
+                        text = quantity.toString(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                    )
+
+                    if(selectedProduct?.unit == UNIT.FRACC) {
+                        DropdownMenuComponent(
+                            placeholder = fraccQuantity.toString(),
+                            fontSize = 15.sp,
+                            menuItems = listOf(
+                                MenuItem("1/1", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.NONE)}),
+                                MenuItem("1/4", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.QUARTER)}),
+                                MenuItem("1/2", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.HALF)}),
+                                MenuItem("3/4", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.THREE_QUARTERS)}),
+                            )
+                        )
+                    }
+                }
 
                 ButtonComponent(
                     icon = Icons.Default.Remove,
@@ -200,8 +246,13 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-
         }
+
+        ButtonComponent(
+            text = "Agregar producto",
+            onClick = ordersViewModel::onAddProduct,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         if (productsForOrder.isNotEmpty()) {
             Column (
@@ -248,7 +299,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                         clientId = clientSelected!!.id,
                         total = total,
                         completed = false,
-                        sended = false
+                        paid = false
                     ))
                     for (product in productsForOrder) {
                         ordersViewModel.insertOrderProduct(OrderProductsEntity(
@@ -256,7 +307,6 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                             orderId = orderId,
                             quantity = product.quantity,
                             productId = product.product.id,
-                            sended = false
                         ))
                     }
                 }

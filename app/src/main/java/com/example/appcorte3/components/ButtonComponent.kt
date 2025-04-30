@@ -2,6 +2,7 @@ package com.example.appcorte3.components
 
 import android.R
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -29,6 +30,7 @@ fun ButtonComponent (
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(color = if (!negative) 0xFF7AB317 else 0xFF353535),
         ),
+        contentPadding = PaddingValues(0.dp),
         modifier = modifier,
         shape = RoundedCornerShape(5.dp)
     ) {

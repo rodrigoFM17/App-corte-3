@@ -13,22 +13,27 @@ interface OrderDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrder(order: OrderEntity)
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE completed = 0")
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE completed = 0")
     suspend fun getAllPendingOrders(): List<OrderDetail>
 
-    @Query("SELECT * FROM Orders where completed = 1")
-    suspend fun getAllCompletedOrders(): List<OrderEntity>
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE completed = 1")
+    suspend fun getAllCompletedOrders(): List<OrderDetail>
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE Orders.id = :id")
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE paid = 1")
+    suspend fun getAllPaidOrders(): List<OrderDetail>
+
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE paid = 0")
+    suspend fun getAllNoPaidOrders(): List<OrderDetail>
+
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE Orders.id = :id")
     suspend fun getOrderById(id: String): OrderDetail
 
     @Query("UPDATE Orders set completed = 1 where id = :id")
-    suspend fun completeOrderById(id: Int)
+    suspend fun completeOrderById(id: String)
 
-    @Query("SELECT * FROM Orders where sended = 0")
-    suspend fun getNoSendedOrders(): List<OrderEntity>
+    @Query("UPDATE Orders set paid = 1 where id = :id")
+    suspend fun markOrderAsPaid(id: String)
 
-    @Query("UPDATE Orders set sended = 1 WHERE id = :orderId")
-    suspend fun markOrderAsSended(orderId: String)
+
 
 }
