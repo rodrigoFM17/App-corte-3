@@ -290,6 +290,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
         ButtonComponent(
             text = "Guardar Pedido",
             modifier = Modifier.fillMaxWidth(),
+            negative = true,
             onClick = {
                 val orderId = UUID.randomUUID().toString()
                 ordersViewModel.viewModelScope.launch {

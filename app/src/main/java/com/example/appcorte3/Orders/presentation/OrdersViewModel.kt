@@ -35,6 +35,20 @@ enum class FRACC_OPTIONS {
     THREE_QUARTERS
 }
 
+enum class FILTER_OPTIONS(val label: String) {
+    NONE ("ninguno"),
+    COMPLETED ("completado"),
+    NO_COMPLETED ("no completado"),
+    PAID ("pagado"),
+    NO_PAID ("no pagado");
+//    CLIENT ("nombre de cliente"),
+//    DATE ("fecha")
+
+    override fun toString(): String {
+        return label
+    }
+}
+
 class OrdersViewModel(
     context: Context,
     val navigateToAddOrder: () -> Unit,
@@ -49,11 +63,34 @@ class OrdersViewModel(
     private val orderProductRepository = OrderProductRepository(context)
 
     private val _orders = MutableLiveData<List<OrderDetail>>()
+    private val _filter = MutableLiveData<FILTER_OPTIONS>(FILTER_OPTIONS.NONE)
+    private val _filtering = MutableLiveData<Boolean>(false)
 
+    val filtering : LiveData<Boolean> = _filtering
+    val filter : LiveData<FILTER_OPTIONS> = _filter
     val orders : LiveData<List<OrderDetail>> = _orders
 
-    suspend fun getAllPendingOrders() {
-        _orders.value = orderRepository.getAllPending()
+    suspend fun onChangeFilterOption(option: FILTER_OPTIONS) {
+        if (option == FILTER_OPTIONS.NONE) {
+            _filtering.value = false
+        } else {
+            _filtering.value = true
+        }
+        _filter.value = option
+        getOrdersFiltered()
+
+    }
+
+    suspend fun getOrdersFiltered() {
+
+        when(_filter.value) {
+            FILTER_OPTIONS.NONE -> _orders.value = orderRepository.getAllOrders()
+            FILTER_OPTIONS.COMPLETED -> _orders.value = orderRepository.getAllCompleted()
+            FILTER_OPTIONS.NO_COMPLETED -> _orders.value = orderRepository.getAllPending()
+            FILTER_OPTIONS.PAID -> _orders.value = orderRepository.getAllPaid()
+            FILTER_OPTIONS.NO_PAID -> _orders.value = orderRepository.getAllNoPaid()
+            else -> _orders.value = emptyList()
+        }
     }
 
     // add order
@@ -219,6 +256,20 @@ class OrdersViewModel(
     suspend fun getParticularOrder(orderId: String) {
         val particularOrder = getParticularOrderUseCase(orderId)
         _particularOrder.value = particularOrder
+    }
+
+    suspend fun onChangeCompleteStatus () {
+        if(_particularOrder.value != null) {
+            orderRepository.changeCompleteStatus(_particularOrder.value!!.id, !_particularOrder.value!!.completed)
+            getParticularOrder(_particularOrder.value!!.id)
+        }
+    }
+
+    suspend fun onChangePaidStatus () {
+        if(_particularOrder.value != null) {
+            orderRepository.changePaidStatus(_particularOrder.value!!.id, !_particularOrder.value!!.paid)
+            getParticularOrder(_particularOrder.value!!.id)
+        }
     }
 
     fun printTicket(context: Context, particularDetailedOrder: ParticularDetailedOrder){

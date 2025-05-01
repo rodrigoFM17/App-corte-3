@@ -70,7 +70,7 @@ fun ClientsScreen(clientsViewModel: ClientsViewModel) {
                 SearchField(
                     value = searchedClient,
                     onChangeValue = clientsViewModel::onChangeSearchedClient,
-                    placeholder = "nombre del producto"
+                    placeholder = "nombre del cliente"
                 )
             }
         }

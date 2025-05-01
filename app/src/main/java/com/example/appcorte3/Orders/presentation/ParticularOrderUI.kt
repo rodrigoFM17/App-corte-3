@@ -4,16 +4,20 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Icon
@@ -26,14 +30,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.components.StatusIndicator
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -65,14 +73,16 @@ fun ParticularOrderScreen(ordersViewModel: OrdersViewModel) {
         Text( text = "No existe este pedido")
     else {
         Container(
-            headerTitle = "Orden de ${particularOrder!!.clientName}"
+            headerTitle = "Detalles de la orden"
         ) {
 
             Text(
                 text = "$ ${particularOrder!!.total}",
+                textAlign = TextAlign.Center,
                 fontSize = 50.sp,
-                fontWeight = FontWeight.Bold
-                )
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
             Row {
@@ -84,8 +94,45 @@ fun ParticularOrderScreen(ordersViewModel: OrdersViewModel) {
                 Spacer(modifier = Modifier.width(10.dp))
                 Text( text = formatTimestamp(particularOrder!!.date))
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            Row {
+                Icon(
+                    Icons.Default.AccountCircle,
+                    contentDescription = "fecha de entrega",
+                    tint = Color(0xFF7AB317)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text( text = particularOrder!!.clientName)
+            }
 
+            Spacer(modifier = Modifier.height(10.dp))
+            Text( text = "para cambiar el estado solo toquelo", fontSize = 10.sp)
+
+            StatusIndicator(
+                status = particularOrder!!.completed,
+                positiveStatusText = "completado",
+                negativeStatusText = "no completado",
+                spacerHeight = 10.dp,
+                changeStatus = {
+                    ordersViewModel.viewModelScope.launch {
+                        ordersViewModel.onChangeCompleteStatus()
+                    }
+                }
+            )
+
+            StatusIndicator(
+                status = particularOrder!!.paid,
+                positiveStatusText = "pagado",
+                negativeStatusText = "no pagado",
+                spacerHeight = 10.dp,
+                changeStatus = {
+                    ordersViewModel.viewModelScope.launch {
+                        ordersViewModel.onChangePaidStatus()
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             Column (
                 modifier = Modifier

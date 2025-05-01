@@ -7,5 +7,7 @@ data class ParticularDetailedOrder (
     val clientName: String,
     val total: Float,
     val date: Long,
+    val completed: Boolean,
+    val paid: Boolean,
     val orderProducts: List<OrderProductDetailed>
     )

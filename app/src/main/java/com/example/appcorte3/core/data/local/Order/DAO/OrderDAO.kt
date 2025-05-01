@@ -13,6 +13,9 @@ interface OrderDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrder(order: OrderEntity)
 
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id")
+    suspend fun getAllOrders(): List<OrderDetail>
+
     @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE completed = 0")
     suspend fun getAllPendingOrders(): List<OrderDetail>
 
@@ -28,11 +31,11 @@ interface OrderDAO {
     @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE Orders.id = :id")
     suspend fun getOrderById(id: String): OrderDetail
 
-    @Query("UPDATE Orders set completed = 1 where id = :id")
-    suspend fun completeOrderById(id: String)
+    @Query("UPDATE Orders set completed = :status where id = :id")
+    suspend fun changeCompleteOrderStatusById(id: String, status: Int)
 
-    @Query("UPDATE Orders set paid = 1 where id = :id")
-    suspend fun markOrderAsPaid(id: String)
+    @Query("UPDATE Orders set paid = :status where id = :id")
+    suspend fun changePaidOrderStatusById(id: String, status: Int)
 
 
 
