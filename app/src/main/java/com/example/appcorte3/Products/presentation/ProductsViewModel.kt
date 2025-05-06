@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.appcorte3.Products.data.repository.ProductRepository
+import com.example.appcorte3.Products.domain.UpdateOrderTotalByProductId
 import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
 
@@ -14,7 +15,8 @@ class ProductsViewModel (
     context: Context,
     val navigateToAddProduct: () -> Unit,
     val navigateToParticularProduct: () -> Unit,
-    val navigateToProducts: () -> Unit
+    val navigateToProducts: () -> Unit,
+    val navigateBack: () -> Unit
 ) : ViewModel() {
 
     private val productRepository = ProductRepository(context)
@@ -111,25 +113,18 @@ class ProductsViewModel (
 
     // particular Product
 
+    private val updateOrderTotalByProductId = UpdateOrderTotalByProductId(context)
     private val _selectedProduct = MutableLiveData<ProductEntity>()
     var selectedProduct : LiveData<ProductEntity> = _selectedProduct
 
     private val _productName = MutableLiveData<String>()
-    private val _productPrice = MutableLiveData<Float>()
-
-    private val _productPriceIntegers = MutableLiveData<Int>()
-    private val _productPriceDecimals = MutableLiveData<Int>()
-
-    val productPriceIntegers : LiveData<Int> = _productPriceIntegers
-    val productPriceDecimals : LiveData<Int> = _productPriceDecimals
 
     val productName : LiveData<String> = _productName
-    val productPrice: LiveData<Float> = _productPrice
 
     fun onSelectProduct(product: ProductEntity) {
         _selectedProduct.value = product
         _productName.value = product.name
-        _productPrice.value = product.price
+        _newProductPrice.value = product.price
         val productPrice = product.price.toString().split(".")
         _priceIntegers.value = productPrice[0].toInt()
         _priceDecimals.value = productPrice[1].toInt()
@@ -143,16 +138,6 @@ class ProductsViewModel (
         _selectedProduct.value = newProduct!!
     }
 
-    fun onChangeProductPrice(value: String) {
-        val newPrice = value.toFloatOrNull()
-        if(newPrice != null) {
-            _productPrice.value = newPrice!!
-            val newProduct = _selectedProduct.value
-            newProduct!!.price = newPrice
-            _selectedProduct.value = newProduct!!
-        }
-    }
-
     fun onChangeProductUnit(unit: UNIT) {
         var product = _selectedProduct.value
 
@@ -162,10 +147,15 @@ class ProductsViewModel (
     }
 
     suspend fun onSaveChanges(product: ProductEntity) {
-
         val product = _selectedProduct.value
         product?.price = _newProductPrice.value!!
         productRepository.updateProduct(product!!)
+        updateOrderTotalByProductId(product)
+        navigateBack()
+    }
+
+    suspend fun onDeleteProduct(product: ProductEntity) {
+        productRepository.deleteProduct(product)
     }
 
 

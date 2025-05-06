@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 
@@ -39,6 +40,9 @@ fun DropdownMenuComponent(
     modifier: Modifier = Modifier,
     negative: Boolean = false,
     fontSize: TextUnit = TextUnit.Unspecified,
+    color: Long? = null,
+    padding: Dp? = null,
+    iconColor: Long? = null,
     icon: ImageVector? = null,
     contentDescription: String? = null
 ) {
@@ -52,19 +56,19 @@ fun DropdownMenuComponent(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = modifier
                 .clip(RoundedCornerShape(5.dp))
-                .background(Color( if (!negative) 0xFF7AB317 else 0xFF353535))
-                .padding(10.dp)
+                .background(Color(color ?: if (!negative) 0xFF7AB317 else 0xFF353535 ))
+                .padding(padding ?: 0.dp)
                 .clickable {
                 expanded = true
             }
         ){
             if(icon != null && contentDescription != null){
-                Icon(icon, contentDescription = contentDescription, tint = Color( if (!negative) 0xFFFFFFFF else 0xFF7AB317))
+                Icon(icon, contentDescription = contentDescription, tint = Color(iconColor ?: if (!negative) 0xFFFFFFFF else 0xFF7AB317))
                 Spacer(modifier = Modifier.width(10.dp))
             }
             Text(
                 text = placeholder,
-                color = Color( if (!negative) 0xFFFFFFFF else 0xFF7AB317),
+                color = Color(if (!negative) 0xFFFFFFFF else 0xFF7AB317),
                 fontSize = fontSize,
                 fontWeight = FontWeight.Bold
             )

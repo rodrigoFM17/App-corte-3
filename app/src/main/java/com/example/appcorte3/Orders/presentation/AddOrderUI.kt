@@ -1,6 +1,5 @@
 package com.example.appcorte3.Orders.presentation
 
-import android.R
 import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.background
@@ -19,9 +18,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +40,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import com.example.appcorte3.Orders.presentation.viewModels.FRACC_OPTIONS
+import com.example.appcorte3.Orders.presentation.viewModels.OrdersViewModel
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.components.DatePickerComponent
 import com.example.appcorte3.components.DropdownMenuComponent
 import com.example.appcorte3.components.MenuItem
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
@@ -47,7 +51,6 @@ import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProduc
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
-import java.nio.file.WatchEvent
 import java.util.Calendar
 import java.util.UUID
 
@@ -70,7 +73,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
     val quantity by ordersViewModel.quantity.observeAsState(1)
     val fraccQuantity by ordersViewModel.fraccString.observeAsState("1/1")
     val total by ordersViewModel.total.observeAsState(0f)
-    val date by ordersViewModel.date.observeAsState(0)
+    val date by ordersViewModel.date.observeAsState(null)
 
     val productsForOrder by ordersViewModel.productsForOrder.observeAsState(emptyList())
 
@@ -85,60 +88,50 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
         headerTitle = "Agregar Pedido"
     ) {
 
-        Column {
-            Row (
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ButtonComponent(
-                    icon = Icons.Default.AccountCircle,
-                    onClick = {showMenu = !showMenu}
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text( text = if (clientSelected == null) {"seleccione un cliente"} else {clientSelected!!.name})
-            }
-        }
-
-        DropdownMenu(
-            expanded = showMenu,
-            onDismissRequest = { showMenu = false }
-        ) {
-            clients.forEach {client ->
-                DropdownMenuItem(
-                    text = { Text(text = client.name)},
-                    onClick = {
-                        ordersViewModel.onChangeClientId(client)
-                    }
-                )
+        DropdownMenuComponent(
+            icon = Icons.Default.AccountCircle,
+            color = 0xFF525252,
+            iconColor = 0xFF7AB317,
+            contentDescription = "cliente",
+            placeholder = clientSelected?.name ?: "seleccione un cliente",
+            menuItems = clients.map { client ->
+                MenuItem(text = client.name, onClick = {ordersViewModel.onChangeClientId(client)})
             }
 
-        }
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        DatePickerComponent(
+            context = context,
+            onChangeDate = ordersViewModel::onChangeDate
+        )
 
-        if (showDialog){
-            DatePickerDialog(
-                context,
-                { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-                    calendar.set(year, month, dayOfMonth, 0, 0, 0) // Establecer la fecha seleccionada en el calendario
-                    timestamp = calendar.timeInMillis // Convertir a timestamp
-                    ordersViewModel.onChangeDate(calendar.timeInMillis)
-                    selectedDate = "$dayOfMonth/${month + 1}/$year"
-                    showDialog = false
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ButtonComponent(
-                icon = Icons.Default.CalendarMonth,
-                onClick = { showDialog = true}
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text( text = selectedDate)
-        }
+//        if (showDialog){
+//            DatePickerDialog(
+//                context,
+//                { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+//                    calendar.set(year, month, dayOfMonth, 0, 0, 0) // Establecer la fecha seleccionada en el calendario
+//                    timestamp = calendar.timeInMillis // Convertir a timestamp
+//                    ordersViewModel.onChangeDate(calendar.timeInMillis)
+//                    selectedDate = "$dayOfMonth/${month + 1}/$year"
+//                    showDialog = false
+//                },
+//                calendar.get(Calendar.YEAR),
+//                calendar.get(Calendar.MONTH),
+//                calendar.get(Calendar.DAY_OF_MONTH)
+//            ).show()
+//        }
+//
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            modifier = Modifier.clickable { showDialog = true}
+//        ) {
+//            ButtonComponent(
+//                icon = Icons.Default.CalendarMonth,
+//                onClick = { showDialog = true}
+//            )
+//            Spacer(modifier = Modifier.width(10.dp))
+//            Text( text = selectedDate)
+//        }
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -225,7 +218,10 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                     )
 
                     if(selectedProduct?.unit == UNIT.FRACC) {
+                        Spacer(modifier = Modifier.width(10.dp))
                         DropdownMenuComponent(
+                            negative = true,
+                            padding = 5.dp,
                             placeholder = fraccQuantity.toString(),
                             fontSize = 15.sp,
                             menuItems = listOf(
@@ -250,11 +246,14 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
 
         ButtonComponent(
             text = "Agregar producto",
+            enabled = selectedProduct != null,
             onClick = ordersViewModel::onAddProduct,
+            negative = true,
             modifier = Modifier.fillMaxWidth()
         )
 
         if (productsForOrder.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(10.dp))
             Column (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -277,26 +276,34 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                     ) {
                         Text( text = product.product.name, modifier = Modifier.weight(2f))
                         Text(text = product.quantity.toString(), modifier = Modifier.weight(1f))
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Eliminar Producto",
+                            tint = Color(0xFF7AB317),
+                            modifier = Modifier.clickable {
+                                ordersViewModel.onDeleteProductForOrder(product)
+                            }
+                        )
                     }
                 }
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-
-            Text( text = total.toString())
-
+            Text( text = "total: ", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text( text = "$ $total", fontSize = 50.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
         ButtonComponent(
             text = "Guardar Pedido",
             modifier = Modifier.fillMaxWidth(),
-            negative = true,
+            enabled = clientSelected != null && productsForOrder.isNotEmpty() && date != null,
             onClick = {
                 val orderId = UUID.randomUUID().toString()
                 ordersViewModel.viewModelScope.launch {
                     ordersViewModel.insertOrder(OrderEntity(
                         id = orderId,
-                        date = date,
+                        date = date!!,
                         clientId = clientSelected!!.id,
                         total = total,
                         completed = false,
@@ -310,6 +317,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                             productId = product.product.id,
                         ))
                     }
+                    ordersViewModel.navigateBack()
                 }
             }
         )

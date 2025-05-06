@@ -4,6 +4,8 @@ import android.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -14,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -23,7 +26,9 @@ fun ButtonComponent (
     text: String = "",
     negative: Boolean = false,
     icon: ImageVector? = null,
-    contentDescription: String? = null
+    contentDescription: String? = null,
+    enabled: Boolean = true,
+    spacerForIcon : Dp? = null
 ) {
     Button(
         onClick = onClick,
@@ -32,7 +37,8 @@ fun ButtonComponent (
         ),
         contentPadding = PaddingValues(0.dp),
         modifier = modifier,
-        shape = RoundedCornerShape(5.dp)
+        shape = RoundedCornerShape(5.dp),
+        enabled = enabled
     ) {
         Row (
             modifier = Modifier,
@@ -44,6 +50,9 @@ fun ButtonComponent (
                     imageVector = icon ,
                     contentDescription = contentDescription,
                     tint = if (negative) { Color(0xFF7AB317) } else { Color.White} )
+            }
+            if(spacerForIcon != null) {
+                Spacer(modifier = Modifier.width(spacerForIcon))
             }
             Text(
                 text = text,

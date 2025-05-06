@@ -1,6 +1,5 @@
 package com.example.appcorte3.Orders.presentation
 
-import android.view.Menu
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.Orders.presentation.components.OrderCard
+import com.example.appcorte3.Orders.presentation.viewModels.FILTER_OPTIONS
+import com.example.appcorte3.Orders.presentation.viewModels.OrdersViewModel
 import com.example.appcorte3.components.ButtonComponent
 import com.example.appcorte3.components.DropdownMenuComponent
 import com.example.appcorte3.components.MenuItem
@@ -70,22 +70,33 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
                 Spacer(modifier = Modifier.width(10.dp))
                 DropdownMenuComponent(
                     placeholder = filter.toString(),
+                    padding = 10.dp,
                     icon = Icons.Default.FilterList,
                     negative = true,
                     contentDescription = "filtros",
                     menuItems = listOf(
-                        MenuItem(text = FILTER_OPTIONS.NONE.label, {ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(FILTER_OPTIONS.NONE) }}),
-                        MenuItem(text = FILTER_OPTIONS.COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(FILTER_OPTIONS.COMPLETED)}}),
-                        MenuItem(text = FILTER_OPTIONS.NO_COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(FILTER_OPTIONS.NO_COMPLETED)}}),
-                        MenuItem(text = FILTER_OPTIONS.PAID.label, { ordersViewModel.viewModelScope.launch {ordersViewModel.onChangeFilterOption(FILTER_OPTIONS.PAID)}}),
-                        MenuItem(text = FILTER_OPTIONS.NO_PAID.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(FILTER_OPTIONS.NO_PAID)}}),
+                        MenuItem(text = FILTER_OPTIONS.NONE.label, {ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                            FILTER_OPTIONS.NONE) }}),
+                        MenuItem(text = FILTER_OPTIONS.COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                            FILTER_OPTIONS.COMPLETED)}}),
+                        MenuItem(text = FILTER_OPTIONS.NO_COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                            FILTER_OPTIONS.NO_COMPLETED)}}),
+                        MenuItem(text = FILTER_OPTIONS.PAID.label, { ordersViewModel.viewModelScope.launch {ordersViewModel.onChangeFilterOption(
+                            FILTER_OPTIONS.PAID)}}),
+                        MenuItem(text = FILTER_OPTIONS.NO_PAID.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                            FILTER_OPTIONS.NO_PAID)}}),
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
                 )
             }
-
+            Spacer(modifier = Modifier.height(10.dp))
+            ButtonComponent(
+                text = "Ver lista de productos por fecha",
+                modifier = Modifier.fillMaxWidth(),
+                onClick = ordersViewModel.navigateToGeneralOrder
+            )
         }
 
         Column {

@@ -1,4 +1,4 @@
-package com.example.appcorte3.Orders.presentation
+package com.example.appcorte3.Orders.presentation.viewModels
 
 import android.Manifest
 import android.app.Activity
@@ -53,6 +53,8 @@ class OrdersViewModel(
     context: Context,
     val navigateToAddOrder: () -> Unit,
     val navigateToParticularOrder: () -> Unit,
+    val navigateBack: () -> Unit,
+    val navigateToGeneralOrder: () -> Unit,
     private val activity: Activity
 ) : ViewModel() {
 
@@ -104,7 +106,7 @@ class OrdersViewModel(
     private val _fraccString = MutableLiveData<String>()
     private val _fraccDecimal = MutableLiveData<Int>(0)
     private val _productsForOrder = MutableLiveData<List<ProductForOrder>>()
-    private val _quantity = MutableLiveData<Int>()
+    private val _quantity = MutableLiveData<Int>(1)
     private val _date = MutableLiveData<Long>()
     private val _total = MutableLiveData<Float>()
 
@@ -164,10 +166,22 @@ class OrdersViewModel(
             quantity = "${_quantity.value}.${_fraccDecimal.value}".toFloat()
         }
 
-        products.add(ProductForOrder(
-            product,
-            quantity
-        ))
+        var isAdded = false
+
+        products.forEach { singleProduct ->
+            if (singleProduct.product == product) {
+                singleProduct.product = product
+                singleProduct.quantity = quantity
+                isAdded = true
+            }
+        }
+
+        if(!isAdded) {
+            products.add(ProductForOrder(
+                product,
+                quantity
+            ))
+        }
 
         _productsForOrder.value = products
         refreshTotal()
@@ -188,6 +202,13 @@ class OrdersViewModel(
 
     }
 
+    fun onDeleteProductForOrder(product: ProductForOrder) {
+        var products = _productsForOrder.value?.toMutableList() ?: mutableListOf()
+        products.remove(product)
+        _productsForOrder.value = products
+        refreshTotal()
+    }
+
     fun onIncrementQuantity() {
         val currentQ = _quantity.value ?: 1
         _quantity.value = currentQ + 1
@@ -198,6 +219,8 @@ class OrdersViewModel(
         val currentQ = _quantity.value ?: 1
         if (currentQ > 1) {
             _quantity.value = currentQ - 1
+        } else if (currentQ == 1 && selectedProduct.value != null && selectedProduct.value?.unit == UNIT.FRACC && fraccQuantity.value != FRACC_OPTIONS.NONE) {
+            _quantity.value = 0
         }
     }
 
@@ -270,6 +293,10 @@ class OrdersViewModel(
             orderRepository.changePaidStatus(_particularOrder.value!!.id, !_particularOrder.value!!.paid)
             getParticularOrder(_particularOrder.value!!.id)
         }
+    }
+
+    suspend fun onDeleteOrder(orderId: String) {
+        orderRepository.deleteOrder(orderId)
     }
 
     fun printTicket(context: Context, particularDetailedOrder: ParticularDetailedOrder){

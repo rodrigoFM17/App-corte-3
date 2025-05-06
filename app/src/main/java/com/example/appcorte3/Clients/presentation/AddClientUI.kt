@@ -43,6 +43,7 @@ fun AddClientScreen(clientsViewModel: ClientsViewModel) {
         ButtonComponent(
             text = "Guardar",
             modifier = Modifier.fillMaxWidth(),
+            enabled = name != "" && phone != "",
             onClick = {
                 clientsViewModel.viewModelScope.launch {
                     clientsViewModel.insertClient(

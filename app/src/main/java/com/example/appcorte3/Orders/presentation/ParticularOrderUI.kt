@@ -4,24 +4,20 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,9 +26,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +37,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import com.example.appcorte3.Orders.presentation.viewModels.OrdersViewModel
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.components.Modal
 import com.example.appcorte3.components.StatusIndicator
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -62,6 +61,7 @@ fun ParticularOrderScreen(ordersViewModel: OrdersViewModel) {
     val bluetoothDevices by ordersViewModel.bluetoothDevices.observeAsState(emptyList())
 
     val context = LocalContext.current
+    var showModal by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         ordersViewModel.viewModelScope.launch {
@@ -106,7 +106,7 @@ fun ParticularOrderScreen(ordersViewModel: OrdersViewModel) {
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Text( text = "para cambiar el estado solo toquelo", fontSize = 10.sp)
+            Text( text = "para cambiar el estado solo presionelo", fontSize = 10.sp)
 
             StatusIndicator(
                 status = particularOrder!!.completed,
@@ -203,11 +203,30 @@ fun ParticularOrderScreen(ordersViewModel: OrdersViewModel) {
 
             ButtonComponent(
                 icon = Icons.Default.Print,
-                negative = true,
                 text = "Imprimir recibo",
+                spacerForIcon = 10.dp,
                 onClick = { ordersViewModel.printTicket(context, particularOrder!!) },
                 modifier = Modifier.fillMaxWidth()
             )
+
+            ButtonComponent(
+                text = "Eliminar pedido",
+                negative = true,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {showModal = true}
+            )
+
+            Modal(
+                text = "Esta accion no se puede revertir ¿Estas seguro que quieres continuar?",
+                showModal = showModal,
+                dismissAction = {showModal = false},
+                confirmAction = {ordersViewModel.viewModelScope.launch {
+                    ordersViewModel.onDeleteOrder(orderId)
+                    showModal = false
+                    ordersViewModel.navigateBack()
+                }}
+            )
+
         }
     }
 

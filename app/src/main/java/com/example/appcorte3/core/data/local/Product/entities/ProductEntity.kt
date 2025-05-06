@@ -4,9 +4,13 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-enum class UNIT {
-    INT,
-    FRACC
+enum class UNIT(val label: String) {
+    INT("Por Pieza"),
+    FRACC("Por Peso");
+
+    override fun toString(): String {
+        return label
+    }
 }
 
 @Entity( tableName = "Products")
@@ -19,6 +23,4 @@ data class ProductEntity (
     var price: Float,
     @ColumnInfo(name = "unit")
     var unit: UNIT,
-    @ColumnInfo(name = "sended")
-    val sended: Boolean
 )

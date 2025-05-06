@@ -1,12 +1,10 @@
 package com.example.appcorte3.Orders.data.repository
 
 import android.content.Context
-import android.renderscript.ScriptIntrinsic
-import androidx.room.Index
 import com.example.appcorte3.Orders.data.model.OrderDetail
+import com.example.appcorte3.Products.domain.UpdateOrderTotalByProductId
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
 import com.example.appcorte3.core.data.local.appDatabase.DatabaseProvider
-import com.google.android.gms.common.api.Status
 
 
 class OrderRepository(context: Context) {
@@ -41,11 +39,23 @@ class OrderRepository(context: Context) {
         return orderDAO.getAllNoPaidOrders()
     }
 
+    suspend fun getOrdersByProductId(productId: String): List<String> {
+        return orderDAO.getOrdersByProductId(productId)
+    }
+
+    suspend fun updateTotalByOrderId(orderId: String) {
+        orderDAO.updateOrderTotalById(orderId)
+    }
+
     suspend fun changeCompleteStatus(id: String, status: Boolean) {
         orderDAO.changeCompleteOrderStatusById(id, if (status) 1 else 0)
     }
 
     suspend fun changePaidStatus(id: String, status: Boolean) {
         orderDAO.changePaidOrderStatusById(id, if (status) 1 else 0)
+    }
+
+    suspend fun deleteOrder(orderId: String){
+        orderDAO.deleteOrderById(orderId)
     }
 }

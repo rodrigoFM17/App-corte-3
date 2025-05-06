@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -26,12 +27,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.Products.presentation.components.PriceInput
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.components.Modal
 import com.example.appcorte3.components.TextFieldComponent
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.core.navigation.ParticularProduct
@@ -42,6 +45,7 @@ fun ParticularProductScreen(
     productsViewModel: ProductsViewModel
 ) {
 
+    var showModal by remember { mutableStateOf(false) }
     val product by productsViewModel.selectedProduct.observeAsState()
     var showUnits by remember { mutableStateOf(false) }
 
@@ -116,8 +120,6 @@ fun ParticularProductScreen(
                     }
                 }
 
-
-
                 Spacer(modifier = Modifier.height(20.dp))
 
                 ButtonComponent(
@@ -127,6 +129,25 @@ fun ParticularProductScreen(
                         productsViewModel.onSaveChanges(it)
                     }}
                 )
+
+                ButtonComponent(
+                    text = "Eliminar Producto",
+                    negative = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {showModal = true}
+                )
+
+                Modal (
+                    text = "Esta accion no se puede revertir y eliminara el producto en todos los pedidos donde se encontraba ¿Estas seguro que quieres continuar?",
+                    showModal = showModal,
+                    dismissAction = {showModal = false},
+                    confirmAction = { productsViewModel.viewModelScope.launch {
+                        productsViewModel.onDeleteProduct(product!!)
+                        showModal = false
+                        productsViewModel.navigateBack()
+                    }}
+                )
+
             }
                 ?: Text(text = "No existe este producto")
 

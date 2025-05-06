@@ -92,13 +92,13 @@ fun AddProductScreen( productsViewModel: ProductsViewModel) {
                 modifier = Modifier.zIndex(1f)
             ) {
                 DropdownMenuItem(
-                    text = { Text( text = "Entero") },
+                    text = { Text( text = UNIT.INT.label) },
                     onClick = {
                         productsViewModel.onChangeUnit(UNIT.INT)
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text( text = "Fraccionario") },
+                    text = { Text( text = UNIT.FRACC.label) },
                     onClick = {
                         productsViewModel.onChangeUnit(UNIT.FRACC)
                     }
@@ -117,12 +117,12 @@ fun AddProductScreen( productsViewModel: ProductsViewModel) {
                             name = name,
                             price = price,
                             unit = unit!!,
-                            sended = false
                         )
                     )
                 }
             },
             text = "Guardar",
+            enabled = name != "" && price != 0f && unit != null,
             modifier = Modifier.fillMaxWidth()
         )
     }

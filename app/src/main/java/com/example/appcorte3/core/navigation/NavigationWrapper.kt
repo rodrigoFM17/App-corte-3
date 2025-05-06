@@ -14,16 +14,15 @@ import com.example.appcorte3.Clients.presentation.ClientsViewModel
 import com.example.appcorte3.Clients.presentation.ParticularClientScreen
 import com.example.appcorte3.Orders.presentation.AddOrderScreen
 import com.example.appcorte3.Orders.presentation.OrdersScreen
-import com.example.appcorte3.Orders.presentation.OrdersViewModel
+import com.example.appcorte3.Orders.presentation.viewModels.OrdersViewModel
 import com.example.appcorte3.Orders.presentation.ParticularOrderScreen
+import com.example.appcorte3.Orders.presentation.viewModels.GeneralOrderViewModel
 import com.example.appcorte3.Products.presentation.AddProductScreen
+import com.example.appcorte3.Orders.presentation.GeneralOrderScreen
 import com.example.appcorte3.Products.presentation.ParticularProductScreen
 import com.example.appcorte3.Products.presentation.ProductsScreen
 import com.example.appcorte3.Products.presentation.ProductsViewModel
-import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
-import com.example.appcorte3.core.storage.StorageManager
 import com.example.appcorte3.layouts.BottomNavigationBar
-import com.google.gson.reflect.TypeToken
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -35,13 +34,16 @@ fun NavigationWrapper(activity: Activity) {
         context = context,
         navigateToAddProduct = {navController.navigate(AddProduct)},
         navigateToParticularProduct = {navController.navigate(ParticularProduct)},
-        navigateToProducts = {navController.popBackStack()}
+        navigateToProducts = {navController.popBackStack()},
+        navigateBack = {navController.popBackStack()}
     )
 
     val ordersViewModel = OrdersViewModel(
         context = context,
         {navController.navigate(AddOrder)},
         {navController.navigate(ParticularOrder)},
+        navigateBack = {navController.popBackStack()},
+        navigateToGeneralOrder = {navController.navigate(GeneralOrder)},
         activity = activity
     )
 
@@ -50,6 +52,10 @@ fun NavigationWrapper(activity: Activity) {
         navigateToAddClient = {navController.navigate(AddClient)},
         navigateToParticularClient = {navController.navigate(ParticularClient)},
         navigateBack = {navController.popBackStack()}
+    )
+
+    val generalOrderViewModel = GeneralOrderViewModel(
+        context = context
     )
 
     Scaffold(
@@ -89,6 +95,10 @@ fun NavigationWrapper(activity: Activity) {
 
             composable<ParticularClient> {
                 ParticularClientScreen(clientsViewModel)
+            }
+
+            composable<GeneralOrder> {
+                GeneralOrderScreen(generalOrderViewModel)
             }
         }
     }

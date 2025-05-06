@@ -9,8 +9,6 @@ lifecycleRuntimeKtx = "2.8.7"
 runtimeLivedata = "1.7.6"
 activityCompose = "1.9.3"
 composeBom = "2024.04.01"
-retrofit = "2.11.0"
-converterGson = "2.11.0"
 material2 = "1.7.6"
 savedState = "2.8.7"
 lifecycleViewModelKtx = "2.8.7"
@@ -29,8 +27,6 @@ androidx-lifecycle-viewmodel-savedstate = {  group = 'androidx.lifecycle', name 
 androidx-lifecycle-viewmodel-ktx = {group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewModelKtx"}
 
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
-com-squareup-retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit"}
-com-squareup-retrofit2-converter-json = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson"}
 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }

@@ -20,4 +20,8 @@ class ClientsRepository(context: Context) {
     suspend fun updateClient(client: ClientEntity) {
         clientDAO.updateClient(client)
     }
+
+    suspend fun deleteClient(client: ClientEntity) {
+        clientDAO.deleteClient(client)
+    }
 }

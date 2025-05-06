@@ -28,3 +28,6 @@ object ParticularProduct
 
 @Serializable
 object ParticularClient
+
+@Serializable
+object GeneralOrder

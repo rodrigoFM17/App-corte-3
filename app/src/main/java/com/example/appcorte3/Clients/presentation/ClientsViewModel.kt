@@ -1,13 +1,11 @@
 package com.example.appcorte3.Clients.presentation
 
 import android.content.Context
-import androidx.compose.runtime.traceEventEnd
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.appcorte3.Clients.data.repository.ClientsRepository
 import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
-import com.example.appcorte3.core.storage.StorageManager
 
 class ClientsViewModel(
     context: Context,
@@ -76,6 +74,7 @@ class ClientsViewModel(
     // particular client
 
     private val _selectedClient = MutableLiveData<ClientEntity>()
+    val selectedClient : LiveData<ClientEntity> = _selectedClient
 
     suspend fun updateClient() {
         var newClient = _selectedClient.value
@@ -87,5 +86,9 @@ class ClientsViewModel(
             clientsRepository.updateClient(newClient)
             navigateBack()
         }
+    }
+
+    suspend fun onDeleteClient(client: ClientEntity) {
+        clientsRepository.deleteClient(client)
     }
 }
