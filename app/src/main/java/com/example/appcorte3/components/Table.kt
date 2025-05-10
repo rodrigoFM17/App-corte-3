@@ -9,18 +9,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-data class TableRow(
-    val columns: List<() -> Unit>,
+data class TableColumn (
+    val text: String,
+    val weight: Float,
     val onClick: (() -> Unit)? = null
 )
+
+data class TableRow(
+    val columns: List<TableColumn>,
+    val onClick: (() -> Unit)? = null
+)
+
 @Composable
 fun Table(
     height: Dp,
@@ -30,6 +39,7 @@ fun Table(
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
+            .clip(RoundedCornerShape(5.dp))
             .background(Color(0xFF353535))
             .verticalScroll(rememberScrollState())
     ) {
@@ -51,10 +61,8 @@ fun Table(
                     }
             ) {
                 for(column in tableRow.columns) {
-                    column()
+                    Text( text = column.text, modifier = Modifier.weight(column.weight))
                 }
-//                Text( text = product.name, modifier = Modifier.weight(2f))
-//                Text(text = product.price.toString(), modifier = Modifier.weight(1f))
             }
         }
 

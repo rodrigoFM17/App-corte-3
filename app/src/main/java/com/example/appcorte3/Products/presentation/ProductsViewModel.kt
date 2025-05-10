@@ -58,13 +58,13 @@ class ProductsViewModel (
 
     private val _priceIntegers = MutableLiveData<Int>()
     private val _priceDecimals = MutableLiveData<Int>()
-    private val _unit = MutableLiveData<UNIT>()
+    private val _unit = MutableLiveData<UNIT?>()
 
     val priceIntegers : LiveData<Int> = _priceIntegers
     val priceDecimals: LiveData<Int> = _priceDecimals
     val name: LiveData<String> = _name
     val newProductPrice: LiveData<Float> = _newProductPrice
-    val unit : LiveData<UNIT> = _unit
+    val unit : LiveData<UNIT?> = _unit
 
     fun onChangeName(value: String) {
         _name.value = value
@@ -108,7 +108,16 @@ class ProductsViewModel (
 
     suspend fun insertProduct(product: ProductEntity) {
         productRepository.insertProduct(product)
+        resetInputs()
         navigateToProducts()
+    }
+
+    fun resetInputs() {
+        _name.value = ""
+        _priceIntegers.value = 0
+        _priceDecimals.value = 0
+        _newProductPrice.value = 0f
+        _unit.value = null
     }
 
     // particular Product

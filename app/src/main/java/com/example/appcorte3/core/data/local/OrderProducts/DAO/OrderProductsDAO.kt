@@ -15,13 +15,16 @@ interface OrderProductDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrderProduct(orderProduct: OrderProductsEntity)
 
-    @Query("SELECT OrderProducts.id, OrderProducts.quantity, Products.name, Products.price FROM OrderProducts INNER JOIN Products on OrderProducts.product_id = Products.id where order_id = :orderId")
+    @Query("SELECT OrderProducts.id, OrderProducts.quantity, Products.id as productId, Products.name, Products.price, Products.unit FROM OrderProducts INNER JOIN Products on OrderProducts.product_id = Products.id where order_id = :orderId")
     suspend fun getProductsByOrderId(orderId: String) : List<OrderProductDetailed>
 
     @Query("SELECT Products.name, sum(quantity) as quantity, 0 as bought \n" +
             "FROM Orders inner join OrderProducts on Orders.id = OrderProducts.order_id inner join Products on OrderProducts.product_id = Products.id " +
             "where Orders.date = :date group by OrderProducts.product_id")
     suspend fun getProductsToBuyByDate(date: Long): List<ProductToBuy>
+
+    @Query("DELETE FROM OrderProducts where order_id = :orderId")
+    suspend fun deleteByOrderId(orderId: String)
 
     @Delete
     suspend fun deleteOrderProduct(orderProduct: OrderProductsEntity)

@@ -1,7 +1,5 @@
 package com.example.appcorte3.Orders.presentation
 
-import android.app.DatePickerDialog
-import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,14 +15,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -46,13 +42,14 @@ import com.example.appcorte3.components.ButtonComponent
 import com.example.appcorte3.components.DatePickerComponent
 import com.example.appcorte3.components.DropdownMenuComponent
 import com.example.appcorte3.components.MenuItem
-import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
-import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProductsEntity
+import com.example.appcorte3.components.SearchField
+import com.example.appcorte3.components.Table
+import com.example.appcorte3.components.TableColumn
+import com.example.appcorte3.components.TableRow
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.layouts.Container
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.UUID
 
 @Composable
 fun AddOrderScreen(ordersViewModel: OrdersViewModel){
@@ -74,6 +71,8 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
     val fraccQuantity by ordersViewModel.fraccString.observeAsState("1/1")
     val total by ordersViewModel.total.observeAsState(0f)
     val date by ordersViewModel.date.observeAsState(null)
+    val searchedProduct by ordersViewModel.searchedProduct.observeAsState("")
+    val searching by ordersViewModel.searching.observeAsState(false)
 
     val productsForOrder by ordersViewModel.productsForOrder.observeAsState(emptyList())
 
@@ -81,6 +80,12 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
         ordersViewModel.viewModelScope.launch {
             ordersViewModel.getAllClients()
             ordersViewModel.getAllProducts()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            ordersViewModel.resetInputs()
         }
     }
 
@@ -105,37 +110,9 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
             onChangeDate = ordersViewModel::onChangeDate
         )
 
-//        if (showDialog){
-//            DatePickerDialog(
-//                context,
-//                { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-//                    calendar.set(year, month, dayOfMonth, 0, 0, 0) // Establecer la fecha seleccionada en el calendario
-//                    timestamp = calendar.timeInMillis // Convertir a timestamp
-//                    ordersViewModel.onChangeDate(calendar.timeInMillis)
-//                    selectedDate = "$dayOfMonth/${month + 1}/$year"
-//                    showDialog = false
-//                },
-//                calendar.get(Calendar.YEAR),
-//                calendar.get(Calendar.MONTH),
-//                calendar.get(Calendar.DAY_OF_MONTH)
-//            ).show()
-//        }
-//
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically,
-//            modifier = Modifier.clickable { showDialog = true}
-//        ) {
-//            ButtonComponent(
-//                icon = Icons.Default.CalendarMonth,
-//                onClick = { showDialog = true}
-//            )
-//            Spacer(modifier = Modifier.width(10.dp))
-//            Text( text = selectedDate)
-//        }
-
         Spacer(modifier = Modifier.height(20.dp))
 
-        if (products.isEmpty()) {
+        if (products.isEmpty() && !searching) {
             Text( text = "Aun no tienes ningun producto registrado, registra uno para empezar a registrar pedidos.")
         } else {
             Text(
@@ -144,36 +121,28 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                 lineHeight = 12.sp
             )
             Spacer(modifier = Modifier.height(10.dp))
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Color(0xFF353535))
-                    .verticalScroll(rememberScrollState())
-            ) {
 
-                Spacer(modifier = Modifier
-                    .background(Color(0xFF7AB317))
-                    .height(10.dp)
-                    .fillMaxWidth()
-                )
+            SearchField(
+                value = searchedProduct,
+                onChangeValue = ordersViewModel::onChangeSearchedProduct,
+                placeholder = "nombre del producto",
+                modifier = Modifier.fillMaxWidth()
+            )
 
-                for ((i, product) in products.withIndex()) {
-                    Row (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
-                            .padding(10.dp)
-                            .clickable {
-                            ordersViewModel.onSelectProduct(product)
-                        }
-                    ) {
-                        Text( text = product.name, modifier = Modifier.weight(2f))
-                        Text(text = product.price.toString(), modifier = Modifier.weight(1f))
-                    }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Table(
+                height = 200.dp,
+                tableContent = products.map { product ->
+                    TableRow(
+                        columns = listOf(
+                            TableColumn( text = product.name, weight = 2f),
+                            TableColumn( text = product.price.toString(), weight = 1f)
+                        ),
+                        onClick = { ordersViewModel.onSelectProduct(product) }
+                    )
                 }
-
-            }
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
             Text(
@@ -286,11 +255,11 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                         )
                     }
                 }
-
             }
+
             Spacer(modifier = Modifier.height(20.dp))
             Text( text = "total: ", fontSize = 10.sp, fontWeight = FontWeight.Bold)
-            Text( text = "$ $total", fontSize = 50.sp, fontWeight = FontWeight.Bold)
+            Text( text = "$%.2f".format(total), fontSize = 50.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(20.dp))
         }
 
@@ -299,25 +268,8 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
             modifier = Modifier.fillMaxWidth(),
             enabled = clientSelected != null && productsForOrder.isNotEmpty() && date != null,
             onClick = {
-                val orderId = UUID.randomUUID().toString()
                 ordersViewModel.viewModelScope.launch {
-                    ordersViewModel.insertOrder(OrderEntity(
-                        id = orderId,
-                        date = date!!,
-                        clientId = clientSelected!!.id,
-                        total = total,
-                        completed = false,
-                        paid = false
-                    ))
-                    for (product in productsForOrder) {
-                        ordersViewModel.insertOrderProduct(OrderProductsEntity(
-                            id = UUID.randomUUID().toString(),
-                            orderId = orderId,
-                            quantity = product.quantity,
-                            productId = product.product.id,
-                        ))
-                    }
-                    ordersViewModel.navigateBack()
+                    ordersViewModel.insertNewOrder()
                 }
             }
         )

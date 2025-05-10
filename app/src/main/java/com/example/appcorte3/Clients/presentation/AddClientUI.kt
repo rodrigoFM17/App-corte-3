@@ -2,6 +2,7 @@ package com.example.appcorte3.Clients.presentation
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -23,6 +24,12 @@ fun AddClientScreen(clientsViewModel: ClientsViewModel) {
     Container(
         headerTitle = "Agregar Cliente"
     ) {
+
+        DisposableEffect(Unit) {
+            onDispose {
+                clientsViewModel.resetInputs()
+            }
+        }
 
         TextFieldComponent(
             value = name,

@@ -106,8 +106,7 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
                 OrderCard(
                     order,
                     {
-                        ordersViewModel.onSelectParticular(order.id)
-                        ordersViewModel.navigateToParticularOrder()
+                        ordersViewModel.onSelectParticular(order)
                     }
 
                 )

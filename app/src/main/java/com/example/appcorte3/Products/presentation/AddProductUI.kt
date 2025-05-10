@@ -14,6 +14,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
@@ -49,6 +50,12 @@ fun AddProductScreen( productsViewModel: ProductsViewModel) {
         headerTitle = "Agregar un producto"
     ) {
 
+        DisposableEffect(Unit) {
+            onDispose {
+                productsViewModel.resetInputs()
+            }
+        }
+
         TextFieldComponent(
             value = name,
             onValueChange = productsViewModel::onChangeName,
@@ -75,7 +82,7 @@ fun AddProductScreen( productsViewModel: ProductsViewModel) {
             Row {
 
                 Text(
-                    text =  if (unit == null) { "seleccione unidad del producto"} else {unit.toString()},
+                    text = unit?.toString() ?: "seleccione unidad del producto",
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = Color(0xFF353535))

@@ -17,5 +17,9 @@ class OrderProductRepository(context: Context) {
         return orderProductDAO.getProductsToBuyByDate(date)
     }
 
+    suspend fun deleteByOrderId(orderId: String) {
+        orderProductDAO.deleteByOrderId(orderId)
+    }
+
 
 }

@@ -18,6 +18,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import com.example.appcorte3.layouts.Container
@@ -60,6 +61,12 @@ fun ParticularProductScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            DisposableEffect(Unit) {
+                onDispose {
+                    productsViewModel.resetInputs()
+                }
+            }
 
             product?.let {
 

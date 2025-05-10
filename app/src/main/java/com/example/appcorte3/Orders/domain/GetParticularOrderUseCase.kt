@@ -16,6 +16,7 @@ class GetParticularOrderUseCase(context: Context) {
         return ParticularDetailedOrder(
             id = order.id,
             clientName = order.name,
+            client_id = order.client_id,
             date = order.date,
             total = order.total,
             completed = order.completed,

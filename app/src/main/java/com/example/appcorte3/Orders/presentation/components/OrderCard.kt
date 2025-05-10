@@ -52,7 +52,7 @@ fun OrderCard (order: OrderDetail, onSelectOrder: () -> Unit) {
             }
     ){
         Text(
-            text = "$ ${order.total}",
+            text = "$%.2f".format(order.total),
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
         )

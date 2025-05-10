@@ -43,6 +43,10 @@ class OrderRepository(context: Context) {
         return orderDAO.getOrdersByProductId(productId)
     }
 
+    suspend fun updateOrder(order: OrderEntity) {
+        orderDAO.updateOrder(order)
+    }
+
     suspend fun updateTotalByOrderId(orderId: String) {
         orderDAO.updateOrderTotalById(orderId)
     }

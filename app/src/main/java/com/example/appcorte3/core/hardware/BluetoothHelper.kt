@@ -97,14 +97,15 @@ object BluetoothHelper {
             val fechaActual = dateFormat.format(Date())
             outputStream.write("Cliente: ${particularDetailedOrder.clientName}\nFecha: $fechaActual\n".toByteArray(Charsets.UTF_8))
 
-            outputStream.write("Producto         Cant   Precio\n".toByteArray(Charsets.UTF_8))
+            outputStream.write("Producto      Cant Precio Subtotal\n".toByteArray(Charsets.UTF_8))
             outputStream.write("--------------------------------\n".toByteArray(Charsets.UTF_8))
 
             for (product in particularDetailedOrder.orderProducts) {
-                val name = product.name.take(15).padEnd(15)
-                val qty = product.quantity.toString().padStart(5)
-                val price = "$%.2f".format(product.price).padStart(8)
-                outputStream.write("$name$qty$price\n".toByteArray(Charsets.UTF_8))
+                val name = product.name.take(13).padEnd(13) // Ajustamos nombre para dejar espacio
+                val qty = product.quantity.toString().padStart(4)
+                val price = "%.2f".format(product.price).padStart(7)
+                val subtotal = "%.2f".format(product.quantity * product.price).padStart(9)
+                outputStream.write("$name$qty$price$subtotal\n".toByteArray(Charsets.UTF_8))
             }
 
             outputStream.write("--------------------------------\n".toByteArray(Charsets.UTF_8))

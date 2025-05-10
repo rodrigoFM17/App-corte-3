@@ -43,6 +43,8 @@ class ClientsViewModel(
         }
     }
 
+    // add client
+
     private val _name = MutableLiveData<String>()
     private val _phone = MutableLiveData<String>()
 
@@ -66,7 +68,12 @@ class ClientsViewModel(
 
     suspend fun insertClient(client: ClientEntity) {
         clientsRepository.insertClient(client)
+        _name.value = ""
+        _phone.value = ""
         navigateBack()
+    }
+
+    fun resetInputs(){
         _name.value = ""
         _phone.value = ""
     }

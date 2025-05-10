@@ -12,12 +12,14 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.Clients.data.repository.ClientsRepository
 import com.example.appcorte3.Orders.data.model.OrderDetail
 import com.example.appcorte3.Orders.data.model.ParticularDetailedOrder
 import com.example.appcorte3.Orders.data.model.ProductForOrder
 import com.example.appcorte3.Orders.data.repository.OrderProductRepository
 import com.example.appcorte3.Orders.data.repository.OrderRepository
+import com.example.appcorte3.Orders.domain.EditParticularOrderUseCase
 import com.example.appcorte3.Orders.domain.GetParticularOrderUseCase
 import com.example.appcorte3.Products.data.repository.ProductRepository
 import com.example.appcorte3.core.data.local.Client.entities.ClientEntity
@@ -26,13 +28,20 @@ import com.example.appcorte3.core.data.local.OrderProducts.entitites.OrderProduc
 import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.core.hardware.BluetoothHelper
+import com.example.appcorte3.core.storage.StorageManager
+import kotlinx.coroutines.launch
+import java.util.UUID
 import kotlin.collections.Set
 
-enum class FRACC_OPTIONS {
-    NONE,
-    QUARTER,
-    HALF,
-    THREE_QUARTERS
+enum class FRACC_OPTIONS(val label: String) {
+    NONE("1/1"),
+    QUARTER("1/4"),
+    HALF("1/2"),
+    THREE_QUARTERS("1/4");
+
+    override fun toString(): String {
+        return label
+    }
 }
 
 enum class FILTER_OPTIONS(val label: String) {
@@ -55,6 +64,7 @@ class OrdersViewModel(
     val navigateToParticularOrder: () -> Unit,
     val navigateBack: () -> Unit,
     val navigateToGeneralOrder: () -> Unit,
+    val orderStorage: StorageManager<OrderDetail>,
     private val activity: Activity
 ) : ViewModel() {
 
@@ -97,18 +107,22 @@ class OrdersViewModel(
 
     // add order
 
+    private var productsConst = emptyList<ProductEntity>()
+
     private val _clients = MutableLiveData<List<ClientEntity>>()
     private val _products = MutableLiveData<List<ProductEntity>>()
     private val _selectedProduct = MutableLiveData<ProductEntity>()
+    private val _searchedProduct = MutableLiveData<String>()
 
-    private val _clientSelected = MutableLiveData<ClientEntity>()
+    private val _clientSelected = MutableLiveData<ClientEntity?>()
     private val _fraccQuantity = MutableLiveData<FRACC_OPTIONS>(FRACC_OPTIONS.NONE)
     private val _fraccString = MutableLiveData<String>()
     private val _fraccDecimal = MutableLiveData<Int>(0)
     private val _productsForOrder = MutableLiveData<List<ProductForOrder>>()
     private val _quantity = MutableLiveData<Int>(1)
-    private val _date = MutableLiveData<Long>()
+    private val _date = MutableLiveData<Long?>()
     private val _total = MutableLiveData<Float>()
+    private val _searching = MutableLiveData<Boolean>(false)
 
     val quantity : LiveData<Int> = _quantity
     val fraccQuantity : LiveData<FRACC_OPTIONS> = _fraccQuantity
@@ -118,9 +132,11 @@ class OrdersViewModel(
     val products : LiveData<List<ProductEntity>> = _products
     val total : LiveData<Float> = _total
 
-    val clientSelected : LiveData<ClientEntity> = _clientSelected
-    val date : LiveData<Long> = _date
+    val clientSelected : LiveData<ClientEntity?> = _clientSelected
+    val date : LiveData<Long?> = _date
     val productsForOrder : LiveData<List<ProductForOrder>> = _productsForOrder
+    val searchedProduct : LiveData<String> = _searchedProduct
+    val searching : LiveData<Boolean> = _searching
 
     fun onChangeClientId(value: ClientEntity) {
         _clientSelected.value = value
@@ -128,6 +144,19 @@ class OrdersViewModel(
 
     fun onChangeDate(value: Long){
         _date.value = value
+    }
+
+    fun onChangeSearchedProduct(value: String) {
+        _searchedProduct.value = value
+
+        if(_searchedProduct.value != "" && _searchedProduct.value != null && _products.value != null){
+            val products = _products.value!!.filter { product -> product.name.startsWith(_searchedProduct.value!!, ignoreCase = true) }
+            _searching.value = true
+            _products.value = products
+        } else {
+            _searching.value = false
+            _products.value = productsConst
+        }
     }
 
     fun onSelectProduct(product: ProductEntity) {
@@ -229,84 +258,49 @@ class OrdersViewModel(
     }
 
     suspend fun getAllProducts() {
-        _products.value = productsRepository.getAllProducts()
+        productsConst = productsRepository.getAllProducts()
+        _products.value = productsConst
     }
 
-    suspend fun insertOrder(order: OrderEntity) {
-        orderRepository.insertOrder(order)
+    fun resetInputs() {
+        _date.value = null
+        _clientSelected.value = null
+        _total.value = 0f
+        _quantity.value = 1
+        _productsForOrder.value = emptyList()
+        _searching.value = false
+        _searchedProduct.value = ""
     }
 
-    suspend fun insertOrderProduct(orderProductsEntity: OrderProductsEntity) {
-        orderProductRepository.insertOrder(orderProductsEntity)
+    suspend fun insertNewOrder() {
+        val orderId = UUID.randomUUID().toString()
+
+        orderRepository.insertOrder(OrderEntity(
+            id = orderId,
+            date = date.value!!,
+            clientId = clientSelected.value!!.id,
+            total = total.value!!,
+            completed = false,
+            paid = false
+        ))
+        for (product in productsForOrder.value!!) {
+            orderProductRepository.insertOrder(OrderProductsEntity(
+                id = UUID.randomUUID().toString(),
+                orderId = orderId,
+                quantity = product.quantity,
+                productId = product.product.id,
+            ))
+        }
+        navigateBack()
+        resetInputs()
     }
 
     // Particular order
 
-    var socket: BluetoothSocket? = null
+    private val editParticularOrderUseCase = EditParticularOrderUseCase(context)
 
-    private val _bluetoothDevices = MutableLiveData<Set<BluetoothDevice>>(emptySet<BluetoothDevice>())
-    private val _showDevices = MutableLiveData<Boolean>()
-
-    val showDevices : LiveData<Boolean> = _showDevices
-    val bluetoothDevices: LiveData<Set<BluetoothDevice>> = _bluetoothDevices
-
-    fun setPairedDevices (context: Context) {
-        if(BluetoothHelper.checkAndRequestPermissions(activity)){
-            _bluetoothDevices.value = BluetoothHelper.getPairedDevices(context)
-            Log.d("Bluetooth", _bluetoothDevices.value?.size.toString())
-        }
+    fun onSelectParticular(order: OrderDetail) {
+        orderStorage.saveInStorage(order)
+        navigateToParticularOrder()
     }
-
-    fun connectToPrinter (context: Context, device: BluetoothDevice) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-            socket = BluetoothHelper.connectToPrinter(device, context)
-            Toast.makeText(context, "Conectado a ${device.name}", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(context, "Permiso de Bluetooth no concedido", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private val _particularOrderId = MutableLiveData<String>()
-    private val _particularOrder = MutableLiveData<ParticularDetailedOrder>()
-
-    val particularDetailedOrder : LiveData<ParticularDetailedOrder> = _particularOrder
-    val particularOrderId : LiveData<String> = _particularOrderId
-
-    fun onSelectParticular(orderId: String) {
-        _particularOrderId.value = orderId
-    }
-
-    suspend fun getParticularOrder(orderId: String) {
-        val particularOrder = getParticularOrderUseCase(orderId)
-        _particularOrder.value = particularOrder
-    }
-
-    suspend fun onChangeCompleteStatus () {
-        if(_particularOrder.value != null) {
-            orderRepository.changeCompleteStatus(_particularOrder.value!!.id, !_particularOrder.value!!.completed)
-            getParticularOrder(_particularOrder.value!!.id)
-        }
-    }
-
-    suspend fun onChangePaidStatus () {
-        if(_particularOrder.value != null) {
-            orderRepository.changePaidStatus(_particularOrder.value!!.id, !_particularOrder.value!!.paid)
-            getParticularOrder(_particularOrder.value!!.id)
-        }
-    }
-
-    suspend fun onDeleteOrder(orderId: String) {
-        orderRepository.deleteOrder(orderId)
-    }
-
-    fun printTicket(context: Context, particularDetailedOrder: ParticularDetailedOrder){
-
-        if (socket == null) {
-             setPairedDevices(context)
-            _showDevices.value = true
-        } else {
-            BluetoothHelper.printOrderTicket(socket, particularDetailedOrder)
-        }
-    }
-
 }

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.appcorte3.Orders.data.model.OrderDetail
 import com.example.appcorte3.core.data.local.Order.entities.OrderEntity
 
@@ -40,6 +41,9 @@ interface OrderDAO {
 
     @Query("UPDATE Orders set total = (SELECT sum(Products.price * OrderProducts.quantity) FROM OrderProducts INNER JOIN Products ON OrderProducts.product_id = Products.id WHERE OrderProducts.order_id = :id) WHERE Orders.id = :id")
     suspend fun updateOrderTotalById(id: String)
+
+    @Update
+    suspend fun updateOrder(order: OrderEntity)
 
     @Query("UPDATE Orders set completed = :status where id = :id")
     suspend fun changeCompleteOrderStatusById(id: String, status: Int)

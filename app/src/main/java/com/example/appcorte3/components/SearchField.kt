@@ -29,6 +29,7 @@ fun SearchField(
         onValueChange = onChangeValue,
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "busqueda", tint = Color.Black) },
         placeholder = { Text(text = placeholder) },
+        modifier = modifier,
         textStyle = TextStyle(
             fontSize = 15.sp,
         ),

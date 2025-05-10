@@ -22,18 +22,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun DatePickerComponent(
     context: Context,
     onChangeDate: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    defaultValue: Long? = null,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     color: Long? = null,
 ){
 
+    fun formatDate(timestamp: Long): String {
+        val date = Date(timestamp)
+        val formatter = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
+        return formatter.format(date)
+    }
+
     var selectedDate by remember { mutableStateOf("seleccione una fecha") }
+    var valueChanged by remember { mutableStateOf(false) }
     var showPicker by remember { mutableStateOf(false) }
     val calendar = Calendar.getInstance()
 
@@ -47,6 +58,7 @@ fun DatePickerComponent(
                 calendar.set(Calendar.SECOND, 0)
                 calendar.set(Calendar.MILLISECOND, 0)
                 onChangeDate(calendar.timeInMillis)
+                valueChanged = true
                 selectedDate = "$dayOfMonth/${month + 1}/$year"
                 showPicker = false
             },
@@ -67,6 +79,6 @@ fun DatePickerComponent(
             tint = Color(color ?: 0xFF7AB317)
         )
         Spacer(modifier = Modifier.width(10.dp))
-        Text( text = selectedDate, fontWeight = FontWeight.Bold, color = Color.White)
+        Text( text = if (defaultValue != null && !valueChanged) formatDate(defaultValue) else  selectedDate, fontWeight = FontWeight.Bold, color = Color.White)
     }
 }

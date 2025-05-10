@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material.icons.extended)
 
+    implementation(libs.com.squareup.retrofit2.converter.json)
 
     implementation(libs.androidx.compose.runtime.livedata)  //LiveData
 
