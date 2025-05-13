@@ -1,5 +1,7 @@
 package com.example.appcorte3.components
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -12,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -22,6 +25,7 @@ fun SearchField(
     onChangeValue: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    spacerHeight: Dp? = null
 ) {
 
     TextField(
@@ -47,5 +51,8 @@ fun SearchField(
         ),
         shape = RoundedCornerShape(5.dp)
     )
+    if(spacerHeight != null) {
+        Spacer(modifier = Modifier.height(10.dp))
+    }
 
 }

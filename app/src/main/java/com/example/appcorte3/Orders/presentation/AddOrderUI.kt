@@ -55,13 +55,6 @@ import java.util.Calendar
 fun AddOrderScreen(ordersViewModel: OrdersViewModel){
 
     val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-
-    var selectedDate by remember { mutableStateOf("seleccione una fecha") }
-    var timestamp by remember { mutableStateOf<Long?>(null) } // Guarda el timestamp
-
-    var showDialog by remember { mutableStateOf(false) }
-    var showMenu by remember { mutableStateOf(false) }
 
     val clients by ordersViewModel.clients.observeAsState(emptyList())
     val products by ordersViewModel.products.observeAsState(emptyList())

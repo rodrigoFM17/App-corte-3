@@ -80,7 +80,7 @@ class ParticularOrderViewModel(
     private val _productsParticularOrder = MutableLiveData<List<ProductForOrder>>()
     private val _quantity = MutableLiveData<Int>(1)
     private val _total = MutableLiveData<Float>()
-    private val _selectedProduct = MutableLiveData<ProductEntity>()
+    private val _selectedProduct = MutableLiveData<ProductEntity?>()
     private val _fraccQuantity = MutableLiveData<FRACC_OPTIONS>(FRACC_OPTIONS.NONE)
     private val _fraccDecimal = MutableLiveData<Int>(0)
 
@@ -93,8 +93,7 @@ class ParticularOrderViewModel(
     val clientName : LiveData<String> = _clientName
     val completed : LiveData<Boolean> = _completed
     val paid : LiveData<Boolean> = _paid
-    val selectedProduct : LiveData<ProductEntity> = _selectedProduct
-    val searchingProducts : LiveData<Boolean> = _searchingProducts
+    val selectedProduct : LiveData<ProductEntity?> = _selectedProduct
     val searchedProduct : LiveData<String> = _searchedProduct
     val fraccQuantity : LiveData<FRACC_OPTIONS> = _fraccQuantity
     val productsParticularOrder : LiveData<List<ProductForOrder>> =_productsParticularOrder
@@ -194,6 +193,9 @@ class ParticularOrderViewModel(
 
     fun onChangeEditing(value: Boolean) {
         _editing.value = value
+        if(!_editing.value!!) {
+            resetInputs()
+        }
     }
 
     fun onChangeClient(client: ClientEntity) {
@@ -294,6 +296,11 @@ class ParticularOrderViewModel(
     }
 
     fun resetInputs() {
-
+        _quantity.value = 1
+        _editing.value = false
+        _selectedProduct.value = null
+        _fraccQuantity.value = FRACC_OPTIONS.NONE
+        _searchedProduct.value = ""
+        _products.value = productConst
     }
 }

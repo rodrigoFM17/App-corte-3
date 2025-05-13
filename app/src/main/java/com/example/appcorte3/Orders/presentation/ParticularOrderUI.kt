@@ -87,7 +87,7 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
     val fraccQuantity by particularOrderViewModel.fraccQuantity.observeAsState(FRACC_OPTIONS.NONE)
     val productsParticularOrder by particularOrderViewModel.productsParticularOrder.observeAsState(emptyList())
     val clients by particularOrderViewModel.clients.observeAsState(emptyList())
-    val total by particularOrderViewModel.total.observeAsState(0)
+    val total by particularOrderViewModel.total.observeAsState(0f)
     val searchedProduct by particularOrderViewModel.searchedProduct.observeAsState("")
 
     val showDevices by particularOrderViewModel.showDevices.observeAsState(false)
@@ -136,6 +136,12 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
             Spacer(modifier = Modifier.height(20.dp))
 
             if (editing) {
+                DatePickerComponent(
+                    context = LocalContext.current,
+                    defaultValue = particularOrder!!.date,
+                    onChangeDate = particularOrderViewModel::onChangeDateParticular
+                )
+                Spacer(modifier = Modifier.height(10.dp))
                 DropdownMenuComponent(
                     icon = Icons.Default.AccountCircle,
                     color = 0xFF525252,
@@ -145,12 +151,6 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
                     menuItems = clients.map { client ->
                         MenuItem(text = client.name, onClick = {particularOrderViewModel.onChangeClient(client)})
                     }
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DatePickerComponent(
-                    context = LocalContext.current,
-                    defaultValue = particularOrder!!.date,
-                    onChangeDate = particularOrderViewModel::onChangeDateParticular
                 )
             } else {
                 Row {
@@ -209,7 +209,8 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
                     placeholder = "nombre del producto",
                     value = searchedProduct,
                     onChangeValue = particularOrderViewModel::onChangeSearchedProduct,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    spacerHeight = 10.dp
                 )
                 Table(
                     height = 200.dp,
@@ -226,33 +227,16 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text(text = "producto seleccionado: ")
-                if(selectedProduct != null) {
-                    Text(text = selectedProduct!!.name, fontWeight = FontWeight.Bold)
-                }
-
                 ProductQuantityInputs(
                     incrementQuantity = particularOrderViewModel::onIncrementQuantity,
                     decrementQuantity = particularOrderViewModel::onDecrementQuantity,
+                    addProduct = particularOrderViewModel::onAddProductParticular,
                     quantity = quantity,
+                    total = total,
                     fracc = fraccQuantity,
                     setQuantity = particularOrderViewModel::onSetFraccQuantity,
                     selectedProduct = selectedProduct
                 )
-
-                if (selectedProduct != null) {
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    ButtonComponent(
-                        text = "Agregar producto",
-                        onClick = particularOrderViewModel::onAddProductParticular,
-                        negative = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                Text(text = "total: ", fontSize = 10.sp)
-                Text(text = total.toString(), fontSize = 30.sp, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -270,14 +254,14 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
                     .height(10.dp)
                     .fillMaxWidth()
                 )
-                for( (i, product) in productsParticularOrder.withIndex()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
-                            .padding(10.dp)
-                    ) {
-                        if(editing){
+                if(editing) {
+                    for( (i, product) in productsParticularOrder.withIndex()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
+                                .padding(10.dp)
+                        ) {
                             Text( text = product.product.name, modifier = Modifier.weight(2f))
                             Text( text = product.quantity.toString(), modifier = Modifier.weight(1f))
                             Icon(
@@ -287,26 +271,58 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
                                     particularOrderViewModel.onDeleteProductParticularOrder(product)
                                 }
                             )
-                        } else {
+                        }
+                    }
+
+                } else {
+                    for( (i, product) in particularOrder!!.orderProducts.withIndex()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
+                                .padding(10.dp)
+                        ) {
                             Text( text = product.quantity.toString(), modifier = Modifier.weight(1f))
-                            Text( text = product.product.name, modifier = Modifier.weight(2f))
-                            Text(text = "$%.2f".format(product.product.price * product.quantity), modifier = Modifier.weight(1f))
+                            Text( text = product.name, modifier = Modifier.weight(2f))
+                            Text(text = "$%.2f".format(product.price * product.quantity), modifier = Modifier.weight(1f))
                         }
                     }
                 }
-
             }
-            Spacer(modifier = Modifier.height(20.dp))
 
-            ButtonComponent(
-                text = "Guardar Cambios",
-                modifier = Modifier.fillMaxWidth(),
-                spacerForIcon = 10.dp,
-                onClick = {particularOrderViewModel.viewModelScope.launch {
-                    particularOrderViewModel.onEditOrder()
-                }},
-                icon = Icons.Default.Save
-            )
+            if (editing){
+                Spacer(modifier = Modifier.height(20.dp))
+                Text( text = "total: ", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Text( text = "$%.2f".format(total), fontSize = 50.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(20.dp))
+
+                ButtonComponent(
+                    text = "Guardar Cambios",
+                    modifier = Modifier.fillMaxWidth(),
+                    spacerForIcon = 10.dp,
+                    onClick = {particularOrderViewModel.viewModelScope.launch {
+                        particularOrderViewModel.onEditOrder()
+                    }},
+                    icon = Icons.Default.Save
+                )
+            } else {
+                ButtonComponent(
+                    icon = Icons.Default.Print,
+                    text = "Imprimir recibo",
+                    spacerForIcon = 10.dp,
+                    onClick = { particularOrderViewModel.printTicket(context, particularOrder!!) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                ButtonComponent(
+                    text = "Eliminar pedido",
+                    negative = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {showModal = true}
+                )
+            }
+
+
 
             if(showDevices) {
                 Text( text = "Seleccione su impresora bluetooth")
@@ -326,55 +342,8 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
                         )
                     }
                 )
-//                Column (
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(150.dp)
-//                        .background(Color(0xFF353535))
-//                        .verticalScroll(rememberScrollState())
-//
-//                ) {
-//                    Spacer(modifier = Modifier
-//                        .background(Color(0xFF7AB317))
-//                        .height(10.dp)
-//                        .fillMaxWidth()
-//                    )
-//                    for( (i, device) in bluetoothDevices.withIndex()) {
-//                        Row(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
-//                                .padding(10.dp)
-//                                .clickable {
-//                                    ordersViewModel.connectToPrinter(context, device)
-//                                }
-//                        ) {
-//                            Text( text = if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED)
-//                                    device.name ?: "Desconocido"
-//                                else "Dispositivo Bluetooth",
-//                                modifier = Modifier.fillMaxWidth()
-//                            )
-//                        }
-//                    }
-//
-//                }
                 Spacer(modifier = Modifier.height(20.dp))
             }
-
-            ButtonComponent(
-                icon = Icons.Default.Print,
-                text = "Imprimir recibo",
-                spacerForIcon = 10.dp,
-                onClick = { particularOrderViewModel.printTicket(context, particularOrder!!) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            ButtonComponent(
-                text = "Eliminar pedido",
-                negative = true,
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {showModal = true}
-            )
 
             Modal(
                 text = "Esta accion no se puede revertir ¿Estas seguro que quieres continuar?",

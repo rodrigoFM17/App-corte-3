@@ -3,6 +3,8 @@ package com.example.appcorte3.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -11,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,11 +26,29 @@ import com.example.appcorte3.core.data.local.Product.entities.UNIT
 fun ProductQuantityInputs(
     incrementQuantity: () -> Unit,
     decrementQuantity: () -> Unit,
+    addProduct: () -> Unit,
     setQuantity: (FRACC_OPTIONS) -> Unit,
     quantity : Int,
+    total: Float,
     fracc: FRACC_OPTIONS,
     selectedProduct: ProductEntity?,
 ) {
+
+    Text(
+        text = selectedProduct?.name ?: "",
+        color = Color(0xFF7AB317),
+        fontWeight = FontWeight.Bold,
+        fontSize = 25.sp,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    Text(
+        text = "Ingresa la cantidad deseada",
+        fontSize = 10.sp,
+        lineHeight = 12.sp
+    )
+    Spacer(modifier = Modifier.height(10.dp))
 
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -76,6 +97,18 @@ fun ProductQuantityInputs(
             onClick = decrementQuantity,
             modifier = Modifier.weight(1f),
             negative = true
+        )
+    }
+
+    if (selectedProduct != null) {
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        ButtonComponent(
+            text = "Agregar producto",
+            onClick = addProduct,
+            negative = true,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

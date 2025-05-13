@@ -49,7 +49,7 @@ fun DatePickerComponent(
     val calendar = Calendar.getInstance()
 
     if (showPicker){
-        DatePickerDialog(
+        val datePickerDialog = DatePickerDialog(
             context,
             { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
                 calendar.set(year, month, dayOfMonth, 0, 0, 0) // Establecer la fecha seleccionada en el calendario
@@ -65,7 +65,11 @@ fun DatePickerComponent(
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        datePickerDialog.setOnCancelListener {
+            showPicker = false
+        }
+        datePickerDialog.show()
     }
 
     Row(
