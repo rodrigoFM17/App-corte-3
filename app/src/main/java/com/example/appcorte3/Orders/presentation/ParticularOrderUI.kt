@@ -306,6 +306,26 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
                     icon = Icons.Default.Save
                 )
             } else {
+                if(showDevices) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text( text = "Seleccione su impresora bluetooth")
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Table(
+                        height = 150.dp,
+                        tableContent = bluetoothDevices.map {
+                                bDevice -> TableRow(
+                                columns = listOf(TableColumn(
+                                    text = if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) bDevice.name ?: "Desconocido" else "Dispositivo Bluetooth",
+                                    weight = 1f,
+                                )),
+                                onClick = {particularOrderViewModel.connectToPrinter(context, bDevice)}
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
                 ButtonComponent(
                     icon = Icons.Default.Print,
                     text = "Imprimir recibo",
@@ -320,29 +340,6 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {showModal = true}
                 )
-            }
-
-
-
-            if(showDevices) {
-                Text( text = "Seleccione su impresora bluetooth")
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Table(
-                    height = 150.dp,
-                    tableContent = bluetoothDevices.map {
-                        bDevice -> TableRow(
-                            columns = listOf(TableColumn(
-                                text = if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) bDevice.name ?: "Desconocido" else "Dispositivo Bluetooth",
-                                weight = 1f,
-                                onClick = {
-                                    particularOrderViewModel.connectToPrinter(context, bDevice)
-                                }
-                            ))
-                        )
-                    }
-                )
-                Spacer(modifier = Modifier.height(20.dp))
             }
 
             Modal(

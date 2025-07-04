@@ -49,7 +49,6 @@ fun NavigationWrapper(activity: Activity) {
         {navController.navigate(ParticularOrder)},
         navigateBack = {navController.popBackStack()},
         navigateToGeneralOrder = {navController.navigate(GeneralOrder)},
-        activity = activity,
         orderStorage = orderStorage
     )
 

@@ -97,18 +97,18 @@ object BluetoothHelper {
             val fechaActual = dateFormat.format(Date())
             outputStream.write("Cliente: ${particularDetailedOrder.clientName}\nFecha: $fechaActual\n".toByteArray(Charsets.UTF_8))
 
-            outputStream.write("Producto      Cant Precio Subtotal\n".toByteArray(Charsets.UTF_8))
+            outputStream.write("${"Producto".take(16).padEnd(16)}${"Cnt".take(3).padEnd(4)}${"Precio".take(5).padEnd(6)}${"Subttl".take(6).padEnd(6)}\n".toByteArray(Charsets.UTF_8))
             outputStream.write("--------------------------------\n".toByteArray(Charsets.UTF_8))
 
             for (product in particularDetailedOrder.orderProducts) {
-                val name = product.name.take(13).padEnd(13) // Ajustamos nombre para dejar espacio
-                val qty = product.quantity.toString().padStart(4)
-                val price = "%.2f".format(product.price).padStart(7)
-                val subtotal = "%.2f".format(product.quantity * product.price).padStart(9)
+                val name = product.name.take(15).padEnd(16)
+                val qty = product.quantity.toString().padEnd(4)
+                val price = "%.2f".format(product.price).padEnd(6)
+                val subtotal = "%.2f".format(product.price * product.quantity).padEnd(6)
                 outputStream.write("$name$qty$price$subtotal\n".toByteArray(Charsets.UTF_8))
             }
 
-            outputStream.write("--------------------------------\n".toByteArray(Charsets.UTF_8))
+            outputStream.write("${"--------------------------------".take(32)}\n".toByteArray(Charsets.UTF_8))
 
             // Total en negrita
             outputStream.write(byteArrayOf(ESC, 'E'.code.toByte(), 1)) // Negrita ON

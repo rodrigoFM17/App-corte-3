@@ -29,6 +29,8 @@ import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
 import com.example.appcorte3.core.data.local.Product.entities.UNIT
 import com.example.appcorte3.core.hardware.BluetoothHelper
 import com.example.appcorte3.core.storage.StorageManager
+import com.example.appcorte3.core.utilities.infrastructure.Loader
+import com.example.appcorte3.core.utilities.models.ILoader
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.collections.Set
@@ -65,14 +67,13 @@ class OrdersViewModel(
     val navigateBack: () -> Unit,
     val navigateToGeneralOrder: () -> Unit,
     val orderStorage: StorageManager<OrderDetail>,
-    private val activity: Activity
-) : ViewModel() {
+) : ViewModel(){
 
-    private val getParticularOrderUseCase = GetParticularOrderUseCase(context)
     private val orderRepository = OrderRepository(context)
     private val productsRepository = ProductRepository(context)
     private val clientRepository = ClientsRepository(context)
     private val orderProductRepository = OrderProductRepository(context)
+    val loader = Loader()
 
     private val _orders = MutableLiveData<List<OrderDetail>>()
     private val _filter = MutableLiveData<FILTER_OPTIONS>(FILTER_OPTIONS.NONE)
@@ -296,8 +297,6 @@ class OrdersViewModel(
     }
 
     // Particular order
-
-    private val editParticularOrderUseCase = EditParticularOrderUseCase(context)
 
     fun onSelectParticular(order: OrderDetail) {
         orderStorage.saveInStorage(order)

@@ -1,22 +1,28 @@
 package com.example.appcorte3.Orders.presentation
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.Orders.presentation.components.OrderCard
@@ -34,17 +40,20 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
     val orders by ordersViewModel.orders.observeAsState(emptyList())
     val filter by ordersViewModel.filter.observeAsState(FILTER_OPTIONS.NONE)
     val filtering by ordersViewModel.filtering.observeAsState(false)
+    val loading by ordersViewModel.loader.isLoading.observeAsState(true)
 
     LaunchedEffect(Unit) {
-        ordersViewModel.viewModelScope.launch {
-            ordersViewModel.getOrdersFiltered()
+        ordersViewModel.loader.onStartLoadingAction {
+            ordersViewModel.viewModelScope.launch {
+                ordersViewModel.getOrdersFiltered()
+            }
         }
     }
 
     Container (
         headerTitle = "Pedidos"
     ){
-        if(orders.isEmpty() && !filtering){
+        if(orders.isEmpty() && !filtering && !loading){
             Text( text = "No tienes pedidos agendados")
             ButtonComponent(
                 icon = Icons.Default.Add,
@@ -54,6 +63,13 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
                     ordersViewModel.navigateToAddOrder()
                 }
             )
+        } else if (orders.isEmpty() && loading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
         } else {
             Row (
                 modifier = Modifier
