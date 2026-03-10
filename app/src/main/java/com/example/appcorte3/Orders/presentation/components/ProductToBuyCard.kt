@@ -27,7 +27,10 @@ import com.example.appcorte3.Orders.data.model.ProductToBuy
 import java.nio.file.WatchEvent
 
 @Composable
-fun ProductToBuyCard(productToBuy: ProductToBuy) {
+fun ProductToBuyCard(
+    productToBuy: ProductToBuy,
+    onClick: () -> Unit
+) {
 
     var bought by remember { mutableStateOf(productToBuy.bought) }
 
@@ -40,6 +43,7 @@ fun ProductToBuyCard(productToBuy: ProductToBuy) {
             .background(Color(if(bought) 0xFF353535 else 0xFF252525))
             .padding(10.dp)
             .clickable {
+                onClick()
                 productToBuy.bought = !productToBuy.bought
                 bought = !bought
             }

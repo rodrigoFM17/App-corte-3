@@ -16,9 +16,9 @@ import com.example.appcorte3.core.data.local.Product.entities.ProductEntity
         ClientEntity::class,
         ProductEntity::class,
         OrderEntity::class,
-        OrderProductsEntity::class
+        OrderProductsEntity::class,
     ],
-    version = 2
+    version = 3
 )
 abstract class AppDataBase : RoomDatabase() {
 

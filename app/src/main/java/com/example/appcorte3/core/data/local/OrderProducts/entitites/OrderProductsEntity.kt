@@ -35,4 +35,6 @@ data class OrderProductsEntity(
     val productId: String,
     @ColumnInfo(name = "quantity")
     val quantity: Float,
+    @ColumnInfo(name = "bought")
+    val bought: Boolean = false
 )

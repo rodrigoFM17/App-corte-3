@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -17,6 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import com.example.appcorte3.Orders.data.model.ProductToBuy
+import com.example.appcorte3.Orders.presentation.components.GeneralProductCard
 import com.example.appcorte3.Orders.presentation.components.ProductToBuyCard
 import kotlinx.coroutines.launch
 
@@ -25,6 +28,8 @@ fun GeneralOrderScreen(generalOrderViewModel: GeneralOrderViewModel) {
 
     val date by generalOrderViewModel.date.observeAsState()
     val productsToBuy by generalOrderViewModel.productsToBuy.observeAsState(emptyList())
+    val generalProducts by generalOrderViewModel.generalProductToBuy.observeAsState(emptyList())
+
 
     LaunchedEffect(Unit) {
         generalOrderViewModel.viewModelScope.launch {
@@ -32,6 +37,11 @@ fun GeneralOrderScreen(generalOrderViewModel: GeneralOrderViewModel) {
         }
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            generalOrderViewModel.resetInputs()
+        }
+    }
     Container(
         headerTitle = "Lista de productos a comprar"
     ) {
@@ -49,9 +59,24 @@ fun GeneralOrderScreen(generalOrderViewModel: GeneralOrderViewModel) {
         Spacer(modifier = Modifier.height(20.dp))
 
         if (date != null) {
-            productsToBuy.forEach { product ->
-                ProductToBuyCard(product)
-                Spacer(modifier = Modifier.height(10.dp))
+//            productsToBuy.forEach { product ->
+//                ProductToBuyCard(product, {
+//                    generalOrderViewModel.viewModelScope.launch {
+//                        generalOrderViewModel.changeBoughtStatus(productId = product.id, bought = product.bought)
+//                    }
+//                })
+//                Spacer(modifier = Modifier.height(10.dp))
+//            }
+            generalProducts.forEach { generalProduct ->
+                GeneralProductCard(generalProduct) { orderProductId, bought ->
+                    generalOrderViewModel.viewModelScope.launch {
+                        generalOrderViewModel.changeBoughtStatus(
+                            orderProductId = orderProductId,
+                            bought = bought
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
         } else {
             Text(
