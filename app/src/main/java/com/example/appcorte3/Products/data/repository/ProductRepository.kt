@@ -6,22 +6,23 @@ import com.example.appcorte3.core.data.local.appDatabase.DatabaseProvider
 
 class ProductRepository(context: Context) {
 
-    private val productDAO = DatabaseProvider.getDatabase(context).productDAO()
+    private val context = context.applicationContext
+    private fun productDAO() = DatabaseProvider.getDatabase(context).productDAO()
 
     suspend fun insertProduct(product: ProductEntity){
-        productDAO.insertProduct(product)
+        productDAO().insertProduct(product)
     }
 
     suspend fun getAllProducts() : List<ProductEntity> {
-        return productDAO.getAllProduct()
+        return productDAO().getAllProduct()
     }
 
     suspend fun updateProduct(product: ProductEntity) {
-        productDAO.updateProduct(product)
+        productDAO().updateProduct(product)
     }
 
     suspend fun deleteProduct(product: ProductEntity) {
-        productDAO.deleteProduct(product)
+        productDAO().deleteProduct(product)
     }
 
 }

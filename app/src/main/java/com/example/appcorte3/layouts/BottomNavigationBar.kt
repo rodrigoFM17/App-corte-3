@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Motorcycle
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import com.example.appcorte3.components.ButtonComponent
 import com.example.appcorte3.core.navigation.Clients
 import com.example.appcorte3.core.navigation.Orders
 import com.example.appcorte3.core.navigation.Products
+import com.example.appcorte3.core.navigation.Settings
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
@@ -48,6 +50,14 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = Icons.Default.AccountCircle,
             text = "",
             onClick = {navController.navigate(Clients)},
+            modifier = Modifier.weight(1f),
+            negative = true
+        )
+
+        ButtonComponent(
+            icon = Icons.Default.Settings,
+            text = "",
+            onClick = {navController.navigate(Settings)},
             modifier = Modifier.weight(1f),
             negative = true
         )

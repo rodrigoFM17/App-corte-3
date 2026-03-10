@@ -2,6 +2,8 @@ package com.example.appcorte3.core.navigation
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -24,10 +26,13 @@ import com.example.appcorte3.Orders.presentation.viewModels.ParticularOrderViewM
 import com.example.appcorte3.Products.presentation.ParticularProductScreen
 import com.example.appcorte3.Products.presentation.ProductsScreen
 import com.example.appcorte3.Products.presentation.ProductsViewModel
+import com.example.appcorte3.Settings.presentation.SettingsScreen
+import com.example.appcorte3.Settings.presentation.SettingsViewModel
 import com.example.appcorte3.core.storage.StorageManager
 import com.example.appcorte3.layouts.BottomNavigationBar
 import com.google.gson.reflect.TypeToken
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun NavigationWrapper(activity: Activity) {
@@ -112,6 +117,10 @@ fun NavigationWrapper(activity: Activity) {
 
             composable<GeneralOrder> {
                 GeneralOrderScreen(generalOrderViewModel)
+            }
+
+            composable<Settings> {
+                SettingsScreen(SettingsViewModel())
             }
         }
     }

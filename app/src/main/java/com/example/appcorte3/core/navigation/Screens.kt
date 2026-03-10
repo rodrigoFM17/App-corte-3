@@ -31,3 +31,6 @@ object ParticularClient
 
 @Serializable
 object GeneralOrder
+
+@Serializable
+object Settings

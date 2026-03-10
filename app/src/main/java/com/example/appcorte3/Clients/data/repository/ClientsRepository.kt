@@ -7,21 +7,22 @@ import com.example.appcorte3.core.data.local.appDatabase.DatabaseProvider
 
 class ClientsRepository(context: Context) {
 
-    private val clientDAO = DatabaseProvider.getDatabase(context).clientDAO()
+    private val context = context.applicationContext
+    private fun clientDAO() = DatabaseProvider.getDatabase(context).clientDAO()
 
     suspend fun insertClient(client: ClientEntity) {
-        clientDAO.insertClient(client)
+        clientDAO().insertClient(client)
     }
 
     suspend fun getAllClients(): List<ClientEntity>{
-        return clientDAO.getAllClients()
+        return clientDAO().getAllClients()
     }
 
     suspend fun updateClient(client: ClientEntity) {
-        clientDAO.updateClient(client)
+        clientDAO().updateClient(client)
     }
 
     suspend fun deleteClient(client: ClientEntity) {
-        clientDAO.deleteClient(client)
+        clientDAO().deleteClient(client)
     }
 }

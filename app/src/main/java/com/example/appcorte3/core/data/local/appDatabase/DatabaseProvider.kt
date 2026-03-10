@@ -8,7 +8,7 @@ import java.io.File
 object DatabaseProvider {
 
     private var appDatabase: AppDataBase? = null
-    private val dbName = "app_database"
+    val dbName = "app_database"
 
     fun getDatabase(ctx: Context): AppDataBase{
         if (appDatabase == null) {
@@ -23,9 +23,15 @@ object DatabaseProvider {
         return appDatabase!!
     }
 
-    fun databaseDir(ctx: Context): File {
+    fun getDatabaseDir(ctx: Context): File {
         return ctx.getDatabasePath(dbName).parentFile!!
+    }
 
+    fun databaseFiles(ctx: Context): List<File> {
+        val parentDir = getDatabaseDir(ctx)
+        return parentDir.listFiles()?.filter {
+            it.name.startsWith(dbName)
+        } ?: emptyList()
     }
 
     fun destroyDatabase() {
