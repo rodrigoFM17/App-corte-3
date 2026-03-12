@@ -95,7 +95,7 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
                 contentDescription = "cliente",
                 placeholder = clientSelected?.name ?: "seleccione un cliente",
                 menuItems = clients.map { client ->
-                    MenuItem(text = client.name, onClick = {ordersViewModel.onChangeClientId(client)})
+                    MenuItem(text = client.name, onClick = { ordersViewModel.onChangeClientId(client)})
                 }
             )
 

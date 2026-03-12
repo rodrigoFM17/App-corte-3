@@ -51,7 +51,9 @@ enum class FILTER_OPTIONS(val label: String) {
     COMPLETED ("completado"),
     NO_COMPLETED ("no completado"),
     PAID ("pagado"),
-    NO_PAID ("no pagado");
+    NO_PAID ("no pagado"),
+    BY_CLIENT("cliente"),
+    BY_DATE("fecha");
 //    CLIENT ("nombre de cliente"),
 //    DATE ("fecha")
 
@@ -76,12 +78,16 @@ class OrdersViewModel(
     val loader = Loader()
 
     private val _orders = MutableLiveData<List<OrderDetail>>()
-    private val _filter = MutableLiveData<FILTER_OPTIONS>(FILTER_OPTIONS.NONE)
-    private val _filtering = MutableLiveData<Boolean>(false)
+    private val _filter = MutableLiveData(FILTER_OPTIONS.NONE)
+    private val _filtering = MutableLiveData(false)
+    private val _filterClient = MutableLiveData<ClientEntity?>(null)
+    private val _filterDate = MutableLiveData<Long?>(null)
 
     val filtering : LiveData<Boolean> = _filtering
     val filter : LiveData<FILTER_OPTIONS> = _filter
     val orders : LiveData<List<OrderDetail>> = _orders
+    val filterClient : LiveData<ClientEntity?> = _filterClient
+    val filterDate : LiveData<Long?> = _filterDate
 
     suspend fun onChangeFilterOption(option: FILTER_OPTIONS) {
         if (option == FILTER_OPTIONS.NONE) {
@@ -89,9 +95,20 @@ class OrdersViewModel(
         } else {
             _filtering.value = true
         }
+        _filterClient.value = null
+        _filterDate.value = null
         _filter.value = option
         getOrdersFiltered()
+    }
 
+    suspend fun onChangeFilterClient(client: ClientEntity) {
+        _filterClient.value = client
+        _orders.value = orderRepository.getOrdersByClientId(client.id)
+    }
+
+    suspend fun onChangeFilterDate(date: Long) {
+        _filterDate.value = date
+        _orders.value = orderRepository.getOrdersByDate(date)
     }
 
     suspend fun getOrdersFiltered() {
@@ -102,6 +119,7 @@ class OrdersViewModel(
             FILTER_OPTIONS.NO_COMPLETED -> _orders.value = orderRepository.getAllPending()
             FILTER_OPTIONS.PAID -> _orders.value = orderRepository.getAllPaid()
             FILTER_OPTIONS.NO_PAID -> _orders.value = orderRepository.getAllNoPaid()
+            FILTER_OPTIONS.BY_CLIENT -> _clients.value = clientRepository.getAllClients()
             else -> _orders.value = emptyList()
         }
     }

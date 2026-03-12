@@ -31,6 +31,14 @@ class OrderRepository(context: Context) {
         return orderDAO.getOrderById(id)
     }
 
+    suspend fun getOrdersByDate(date: Long): List<OrderDetail> {
+        return orderDAO.getOrdersByDate(date)
+    }
+
+    suspend fun getOrdersByClientId(clientId: String): List<OrderDetail> {
+        return orderDAO.getOrdersByClientId(clientId)
+    }
+
     suspend fun getAllPaid(): List<OrderDetail> {
         return orderDAO.getAllPaidOrders()
     }

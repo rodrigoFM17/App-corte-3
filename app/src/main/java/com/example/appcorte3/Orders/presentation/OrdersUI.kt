@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,12 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.Orders.presentation.components.OrderCard
 import com.example.appcorte3.Orders.presentation.viewModels.FILTER_OPTIONS
 import com.example.appcorte3.Orders.presentation.viewModels.OrdersViewModel
 import com.example.appcorte3.components.ButtonComponent
+import com.example.appcorte3.components.DatePickerComponent
 import com.example.appcorte3.components.DropdownMenuComponent
 import com.example.appcorte3.components.MenuItem
 import com.example.appcorte3.layouts.Container
@@ -41,6 +44,8 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
     val filter by ordersViewModel.filter.observeAsState(FILTER_OPTIONS.NONE)
     val filtering by ordersViewModel.filtering.observeAsState(false)
     val loading by ordersViewModel.loader.isLoading.observeAsState(true)
+    val clients by ordersViewModel.clients.observeAsState(emptyList())
+    val filterClient by ordersViewModel.filterClient.observeAsState(null)
 
     LaunchedEffect(Unit) {
         ordersViewModel.loader.onStartLoadingAction {
@@ -75,7 +80,8 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(IntrinsicSize.Min)
+                        .height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ){
                     ButtonComponent(
                         icon = Icons.Default.Add,
@@ -84,36 +90,62 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
                         },
                         modifier = Modifier.fillMaxHeight()
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
                     DropdownMenuComponent(
                         placeholder = filter.toString(),
                         padding = 10.dp,
                         icon = Icons.Default.FilterList,
                         negative = true,
                         contentDescription = "filtros",
-                        menuItems = listOf(
-                            MenuItem(text = FILTER_OPTIONS.NONE.label, {ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                                FILTER_OPTIONS.NONE) }}),
-                            MenuItem(text = FILTER_OPTIONS.COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                                FILTER_OPTIONS.COMPLETED)}}),
-                            MenuItem(text = FILTER_OPTIONS.NO_COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                                FILTER_OPTIONS.NO_COMPLETED)}}),
-                            MenuItem(text = FILTER_OPTIONS.PAID.label, { ordersViewModel.viewModelScope.launch {ordersViewModel.onChangeFilterOption(
-                                FILTER_OPTIONS.PAID)}}),
-                            MenuItem(text = FILTER_OPTIONS.NO_PAID.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                                FILTER_OPTIONS.NO_PAID)}}),
-                        ),
+                        menuItems = FILTER_OPTIONS.entries.map { option ->
+                            MenuItem(
+                                text = option.label,
+                                onClick = {
+                                    ordersViewModel.viewModelScope.launch {
+                                        ordersViewModel.onChangeFilterOption(option)
+                                    }
+                                }
+                            )
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
                     )
                 }
+
                 Spacer(modifier = Modifier.height(10.dp))
                 ButtonComponent(
                     text = "Ver lista de productos por fecha",
                     modifier = Modifier.fillMaxWidth(),
                     onClick = ordersViewModel.navigateToGeneralOrder
                 )
+                if (filter == FILTER_OPTIONS.BY_CLIENT) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    DropdownMenuComponent(
+                        icon = Icons.Default.AccountCircle,
+                        color = 0xFF525252,
+                        iconColor = 0xFF7AB317,
+                        contentDescription = "cliente",
+                        placeholder = filterClient?.name ?: "seleccione un cliente",
+                        menuItems = clients.map { client ->
+                            MenuItem(text = client.name, onClick = {
+                                ordersViewModel.viewModelScope.launch {
+                                    ordersViewModel.onChangeFilterClient(client)
+                                }
+                            })
+                        }
+                    )
+                }
+
+                if (filter == FILTER_OPTIONS.BY_DATE) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    DatePickerComponent(
+                        context = LocalContext.current,
+                        onChangeDate = {date -> ordersViewModel.viewModelScope.launch {
+                                ordersViewModel.onChangeFilterDate(date)
+                            }
+                        }
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(10.dp))
         }

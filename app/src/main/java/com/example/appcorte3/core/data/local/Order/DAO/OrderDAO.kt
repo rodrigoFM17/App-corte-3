@@ -15,28 +15,51 @@ interface OrderDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrder(order: OrderEntity)
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id")
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid " +
+            "FROM Orders INNER JOIN Clients on Orders.client_id = Clients.id " +
+            "ORDER BY Orders.date DESC")
     suspend fun getAllOrders(): List<OrderDetail>
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE completed = 0")
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid " +
+            "FROM Orders inner join Clients on Orders.client_id = Clients.id " +
+            "WHERE completed = 0 " +
+            "ORDER BY Orders.date DESC")
     suspend fun getAllPendingOrders(): List<OrderDetail>
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE completed = 1")
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid " +
+            "FROM Orders inner join Clients on Orders.client_id = Clients.id " +
+            "WHERE completed = 1 " +
+            "ORDER BY Orders.date DESC")
     suspend fun getAllCompletedOrders(): List<OrderDetail>
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE paid = 1")
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid " +
+            "FROM Orders inner join Clients on Orders.client_id = Clients.id " +
+            "WHERE paid = 1 " +
+            "ORDER BY Orders.date DESC")
     suspend fun getAllPaidOrders(): List<OrderDetail>
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE paid = 0")
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid " +
+            "FROM Orders inner join Clients on Orders.client_id = Clients.id " +
+            "WHERE paid = 0 " +
+            "ORDER BY Orders.date DESC")
     suspend fun getAllNoPaidOrders(): List<OrderDetail>
 
     @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE Orders.id = :id")
     suspend fun getOrderById(id: String): OrderDetail
 
-    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid FROM Orders inner join Clients on Orders.client_id = Clients.id WHERE Orders.date = :date")
+    @Query("SELECT Orders.id, client_id, Orders.total, date, Clients.name, completed, paid " +
+            "FROM Orders INNER JOIN Clients ON Orders.client_id = Clients.id " +
+            "WHERE Clients.id = :clientId " +
+            "ORDER BY Orders.date DESC")
+    suspend fun getOrdersByClientId(clientId: String): List<OrderDetail>
+
+    @Query("SELECT Orders.id, client_id, Orders.total, Orders.date, Clients.name, completed, paid " +
+            "FROM Orders inner join Clients on Orders.client_id = Clients.id " +
+            "WHERE Orders.date = :date")
     suspend fun getOrdersByDate(date: Long): List<OrderDetail>
 
-    @Query("SELECT Orders.id FROM Orders inner join OrderProducts on Orders.id = OrderProducts.order_id WHERE OrderProducts.product_id = :productId")
+    @Query("SELECT Orders.id FROM Orders inner join OrderProducts on Orders.id = OrderProducts.order_id " +
+            "WHERE OrderProducts.product_id = :productId")
     suspend fun getOrdersByProductId(productId: String): List<String>
 
     @Query("UPDATE Orders set total = (SELECT sum(Products.price * OrderProducts.quantity) FROM OrderProducts INNER JOIN Products ON OrderProducts.product_id = Products.id WHERE OrderProducts.order_id = :id) WHERE Orders.id = :id")
