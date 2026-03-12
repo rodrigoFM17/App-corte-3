@@ -39,7 +39,6 @@ fun Container(
             .background(color = Color(0xFF525252))
             .padding(top = 50.dp, bottom = 70.dp, end = 20.dp, start = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
 
         LazyColumn(
@@ -47,14 +46,6 @@ fun Container(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-//            modifier = if (verticalScroll) Modifier
-//                .fillMaxWidth()
-//                .weight(1f)
-//                .verticalScroll(rememberScrollState())
-//            else
-//                Modifier
-//                    .fillMaxWidth()
-//                    .weight(1f)
         ) {
             item {
                 Column(
