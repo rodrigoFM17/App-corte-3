@@ -50,88 +50,93 @@ fun AddProductScreen( productsViewModel: ProductsViewModel) {
         headerTitle = "Agregar un producto"
     ) {
 
-        DisposableEffect(Unit) {
-            onDispose {
-                productsViewModel.resetInputs()
-            }
-        }
+        item {
 
-        TextFieldComponent(
-            value = name,
-            onValueChange = productsViewModel::onChangeName,
-            placeholder = "Nombre del producto",
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        PriceInput(
-            integers = priceIntegers,
-            decimals = priceDecimals,
-            onChangePriceIntegers = productsViewModel::onChangePriceIntegers,
-            onChangePriceDecimals = productsViewModel::onChangePriceDecimals
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(),
-        ) {
-
-            Row {
-
-                Text(
-                    text = unit?.toString() ?: "seleccione unidad del producto",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = Color(0xFF353535))
-                        .padding(15.dp)
-                        .clickable {
-                            expanded = !expanded
-                        }
-                )
+            DisposableEffect(Unit) {
+                onDispose {
+                    productsViewModel.resetInputs()
+                }
             }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.zIndex(1f)
+            TextFieldComponent(
+                value = name,
+                onValueChange = productsViewModel::onChangeName,
+                placeholder = "Nombre del producto",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            PriceInput(
+                integers = priceIntegers,
+                decimals = priceDecimals,
+                onChangePriceIntegers = productsViewModel::onChangePriceIntegers,
+                onChangePriceDecimals = productsViewModel::onChangePriceDecimals
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
             ) {
-                DropdownMenuItem(
-                    text = { Text( text = UNIT.INT.label) },
-                    onClick = {
-                        productsViewModel.onChangeUnit(UNIT.INT)
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text( text = UNIT.FRACC.label) },
-                    onClick = {
-                        productsViewModel.onChangeUnit(UNIT.FRACC)
-                    }
-                )
-            }
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+                Row {
 
-        ButtonComponent(
-            onClick = {
-                productsViewModel.viewModelScope.launch {
-                    productsViewModel.insertProduct(
-                        ProductEntity(
-                            id = UUID.randomUUID().toString(),
-                            name = name,
-                            price = price,
-                            unit = unit!!,
-                        )
+                    Text(
+                        text = unit?.toString() ?: "seleccione unidad del producto",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(color = Color(0xFF353535))
+                            .padding(15.dp)
+                            .clickable {
+                                expanded = !expanded
+                            }
                     )
                 }
-            },
-            text = "Guardar",
-            enabled = name != "" && price != 0f && unit != null,
-            modifier = Modifier.fillMaxWidth()
-        )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.zIndex(1f)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text( text = UNIT.INT.label) },
+                        onClick = {
+                            productsViewModel.onChangeUnit(UNIT.INT)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text( text = UNIT.FRACC.label) },
+                        onClick = {
+                            productsViewModel.onChangeUnit(UNIT.FRACC)
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            ButtonComponent(
+                onClick = {
+                    productsViewModel.viewModelScope.launch {
+                        productsViewModel.insertProduct(
+                            ProductEntity(
+                                id = UUID.randomUUID().toString(),
+                                name = name,
+                                price = price,
+                                unit = unit!!,
+                            )
+                        )
+                    }
+                },
+                text = "Guardar",
+                enabled = name != "" && price != 0f && unit != null,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+        }
+
     }
 
 }

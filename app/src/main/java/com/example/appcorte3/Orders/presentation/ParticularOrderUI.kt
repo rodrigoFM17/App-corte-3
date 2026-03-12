@@ -115,245 +115,249 @@ fun ParticularOrderScreen(particularOrderViewModel: ParticularOrderViewModel) {
             headerTitle = "Detalles de la orden"
         ) {
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                ButtonComponent(
-                    icon = if (!editing) Icons.Default.Edit else Icons.Default.Cancel,
-                    negative = true,
-                    onClick = { particularOrderViewModel.viewModelScope.launch {
-                        particularOrderViewModel.onChangeEditing(!editing)
-                    }},
-                    modifier = Modifier.padding(end = 10.dp)
-                )
+            item {
 
-                Text(
-                    text = "$%.2f".format(particularOrder!!.total),
-                    fontSize = 50.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (editing) {
-                DatePickerComponent(
-                    context = LocalContext.current,
-                    defaultValue = particularOrder!!.date,
-                    onChangeDate = particularOrderViewModel::onChangeDateParticular
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                DropdownMenuComponent(
-                    icon = Icons.Default.AccountCircle,
-                    color = 0xFF525252,
-                    iconColor = 0xFF7AB317,
-                    contentDescription = "cliente",
-                    placeholder = clientName,
-                    menuItems = clients.map { client ->
-                        MenuItem(text = client.name, onClick = {particularOrderViewModel.onChangeClient(client)})
-                    }
-                )
-            } else {
-                Row {
-                    Icon(
-                        Icons.Default.CalendarMonth,
-                        contentDescription = "fecha de entrega",
-                        tint = Color(0xFF7AB317)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    ButtonComponent(
+                        icon = if (!editing) Icons.Default.Edit else Icons.Default.Cancel,
+                        negative = true,
+                        onClick = { particularOrderViewModel.viewModelScope.launch {
+                            particularOrderViewModel.onChangeEditing(!editing)
+                        }},
+                        modifier = Modifier.padding(end = 10.dp)
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text( text = formatTimestamp(particularOrder!!.date))
+
+                    Text(
+                        text = "$%.2f".format(particularOrder!!.total),
+                        fontSize = 50.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Row {
-                    Icon(
-                        Icons.Default.AccountCircle,
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                if (editing) {
+                    DatePickerComponent(
+                        context = LocalContext.current,
+                        defaultValue = particularOrder!!.date,
+                        onChangeDate = particularOrderViewModel::onChangeDateParticular
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    DropdownMenuComponent(
+                        icon = Icons.Default.AccountCircle,
+                        color = 0xFF525252,
+                        iconColor = 0xFF7AB317,
                         contentDescription = "cliente",
-                        tint = Color(0xFF7AB317)
+                        placeholder = clientName,
+                        menuItems = clients.map { client ->
+                            MenuItem(text = client.name, onClick = {particularOrderViewModel.onChangeClient(client)})
+                        }
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text( text = particularOrder!!.clientName)
-                }
-            }
-
-
-            Spacer(modifier = Modifier.height(10.dp))
-            Text( text = "para cambiar el estado solo presionelo", fontSize = 10.sp)
-
-            StatusIndicator(
-                status = completed,
-                positiveStatusText = "completado",
-                negativeStatusText = "no completado",
-                spacerHeight = 10.dp,
-                changeStatus = {
-                    particularOrderViewModel.viewModelScope.launch {
-                        particularOrderViewModel.onChangeCompleteStatus()
-                    }
-                }
-            )
-
-            StatusIndicator(
-                status = paid,
-                positiveStatusText = "pagado",
-                negativeStatusText = "sin pagar",
-                spacerHeight = 10.dp,
-                changeStatus = {
-                    particularOrderViewModel.viewModelScope.launch {
-                        particularOrderViewModel.onChangePaidStatus()
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            if (editing) {
-                SearchField(
-                    placeholder = "nombre del producto",
-                    value = searchedProduct,
-                    onChangeValue = particularOrderViewModel::onChangeSearchedProduct,
-                    modifier = Modifier.fillMaxWidth(),
-                    spacerHeight = 10.dp
-                )
-                Table(
-                    height = 200.dp,
-                    tableContent = products.map { product ->
-                        TableRow(
-                            columns = listOf(
-                                TableColumn( text = product.name, weight = 2f),
-                                TableColumn( text = product.price.toString(), weight = 1f)
-                            ),
-                            onClick = { particularOrderViewModel.onSelectProduct(product) }
+                } else {
+                    Row {
+                        Icon(
+                            Icons.Default.CalendarMonth,
+                            contentDescription = "fecha de entrega",
+                            tint = Color(0xFF7AB317)
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text( text = formatTimestamp(particularOrder!!.date))
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row {
+                        Icon(
+                            Icons.Default.AccountCircle,
+                            contentDescription = "cliente",
+                            tint = Color(0xFF7AB317)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text( text = particularOrder!!.clientName)
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Text( text = "para cambiar el estado solo presionelo", fontSize = 10.sp)
+
+                StatusIndicator(
+                    status = completed,
+                    positiveStatusText = "completado",
+                    negativeStatusText = "no completado",
+                    spacerHeight = 10.dp,
+                    changeStatus = {
+                        particularOrderViewModel.viewModelScope.launch {
+                            particularOrderViewModel.onChangeCompleteStatus()
+                        }
+                    }
+                )
+
+                StatusIndicator(
+                    status = paid,
+                    positiveStatusText = "pagado",
+                    negativeStatusText = "sin pagar",
+                    spacerHeight = 10.dp,
+                    changeStatus = {
+                        particularOrderViewModel.viewModelScope.launch {
+                            particularOrderViewModel.onChangePaidStatus()
+                        }
                     }
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                ProductQuantityInputs(
-                    incrementQuantity = particularOrderViewModel::onIncrementQuantity,
-                    decrementQuantity = particularOrderViewModel::onDecrementQuantity,
-                    addProduct = particularOrderViewModel::onAddProductParticular,
-                    quantity = quantity,
-                    total = total,
-                    fracc = fraccQuantity,
-                    setQuantity = particularOrderViewModel::onSetFraccQuantity,
-                    selectedProduct = selectedProduct
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Color(0xFF353535))
-                    .verticalScroll(rememberScrollState())
-
-            ) {
-                Spacer(modifier = Modifier
-                    .background(Color(0xFF7AB317))
-                    .height(10.dp)
-                    .fillMaxWidth()
-                )
-                if(editing) {
-                    for( (i, product) in productsParticularOrder.withIndex()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
-                                .padding(10.dp)
-                        ) {
-                            Text( text = product.product.name, modifier = Modifier.weight(2f))
-                            Text( text = product.quantity.toString(), modifier = Modifier.weight(1f))
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "eliminar producto",
-                                modifier = Modifier.clickable {
-                                    particularOrderViewModel.onDeleteProductParticularOrder(product)
-                                }
+                if (editing) {
+                    SearchField(
+                        placeholder = "nombre del producto",
+                        value = searchedProduct,
+                        onChangeValue = particularOrderViewModel::onChangeSearchedProduct,
+                        modifier = Modifier.fillMaxWidth(),
+                        spacerHeight = 10.dp
+                    )
+                    Table(
+                        height = 200.dp,
+                        tableContent = products.map { product ->
+                            TableRow(
+                                columns = listOf(
+                                    TableColumn( text = product.name, weight = 2f),
+                                    TableColumn( text = product.price.toString(), weight = 1f)
+                                ),
+                                onClick = { particularOrderViewModel.onSelectProduct(product) }
                             )
                         }
-                    }
+                    )
 
-                } else {
-                    for( (i, product) in particularOrder!!.orderProducts.withIndex()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
-                                .padding(10.dp)
-                        ) {
-                            Text( text = product.quantity.toString(), modifier = Modifier.weight(1f))
-                            Text( text = product.name, modifier = Modifier.weight(2f))
-                            Text(text = "$%.2f".format(product.price * product.quantity), modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    ProductQuantityInputs(
+                        incrementQuantity = particularOrderViewModel::onIncrementQuantity,
+                        decrementQuantity = particularOrderViewModel::onDecrementQuantity,
+                        addProduct = particularOrderViewModel::onAddProductParticular,
+                        quantity = quantity,
+                        total = total,
+                        fracc = fraccQuantity,
+                        setQuantity = particularOrderViewModel::onSetFraccQuantity,
+                        selectedProduct = selectedProduct
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .background(Color(0xFF353535))
+                        .verticalScroll(rememberScrollState())
+
+                ) {
+                    Spacer(modifier = Modifier
+                        .background(Color(0xFF7AB317))
+                        .height(10.dp)
+                        .fillMaxWidth()
+                    )
+                    if(editing) {
+                        for( (i, product) in productsParticularOrder.withIndex()) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
+                                    .padding(10.dp)
+                            ) {
+                                Text( text = product.product.name, modifier = Modifier.weight(2f))
+                                Text( text = product.quantity.toString(), modifier = Modifier.weight(1f))
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "eliminar producto",
+                                    modifier = Modifier.clickable {
+                                        particularOrderViewModel.onDeleteProductParticularOrder(product)
+                                    }
+                                )
+                            }
+                        }
+
+                    } else {
+                        for( (i, product) in particularOrder!!.orderProducts.withIndex()) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
+                                    .padding(10.dp)
+                            ) {
+                                Text( text = product.quantity.toString(), modifier = Modifier.weight(1f))
+                                Text( text = product.name, modifier = Modifier.weight(2f))
+                                Text(text = "$%.2f".format(product.price * product.quantity), modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }
-            }
 
-            if (editing){
-                Spacer(modifier = Modifier.height(20.dp))
-                Text( text = "total: ", fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Text( text = "$%.2f".format(total), fontSize = 50.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(20.dp))
-
-                ButtonComponent(
-                    text = "Guardar Cambios",
-                    modifier = Modifier.fillMaxWidth(),
-                    spacerForIcon = 10.dp,
-                    onClick = {particularOrderViewModel.viewModelScope.launch {
-                        particularOrderViewModel.onEditOrder()
-                    }},
-                    icon = Icons.Default.Save
-                )
-            } else {
-                if(showDevices) {
+                if (editing){
                     Spacer(modifier = Modifier.height(20.dp))
-                    Text( text = "Seleccione su impresora bluetooth")
+                    Text( text = "total: ", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text( text = "$%.2f".format(total), fontSize = 50.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Table(
-                        height = 150.dp,
-                        tableContent = bluetoothDevices.map {
-                                bDevice -> TableRow(
+                    ButtonComponent(
+                        text = "Guardar Cambios",
+                        modifier = Modifier.fillMaxWidth(),
+                        spacerForIcon = 10.dp,
+                        onClick = {particularOrderViewModel.viewModelScope.launch {
+                            particularOrderViewModel.onEditOrder()
+                        }},
+                        icon = Icons.Default.Save
+                    )
+                } else {
+                    if(showDevices) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text( text = "Seleccione su impresora bluetooth")
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Table(
+                            height = 150.dp,
+                            tableContent = bluetoothDevices.map {
+                                    bDevice -> TableRow(
                                 columns = listOf(TableColumn(
                                     text = if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) bDevice.name ?: "Desconocido" else "Dispositivo Bluetooth",
                                     weight = 1f,
                                 )),
                                 onClick = {particularOrderViewModel.connectToPrinter(context, bDevice)}
                             )
-                        }
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+
+                    ButtonComponent(
+                        icon = Icons.Default.Print,
+                        text = "Imprimir recibo",
+                        spacerForIcon = 10.dp,
+                        onClick = { particularOrderViewModel.printTicket(context, particularOrder!!) },
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(20.dp))
+
+                    ButtonComponent(
+                        text = "Eliminar pedido",
+                        negative = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {showModal = true}
+                    )
                 }
 
-                ButtonComponent(
-                    icon = Icons.Default.Print,
-                    text = "Imprimir recibo",
-                    spacerForIcon = 10.dp,
-                    onClick = { particularOrderViewModel.printTicket(context, particularOrder!!) },
-                    modifier = Modifier.fillMaxWidth()
+                Modal(
+                    text = "Esta accion no se puede revertir ¿Estas seguro que quieres continuar?",
+                    showModal = showModal,
+                    dismissAction = {showModal = false},
+                    confirmAction = {particularOrderViewModel.viewModelScope.launch {
+                        particularOrderViewModel.onDeleteOrder()
+                        showModal = false
+                    }}
                 )
 
-                ButtonComponent(
-                    text = "Eliminar pedido",
-                    negative = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {showModal = true}
-                )
             }
 
-            Modal(
-                text = "Esta accion no se puede revertir ¿Estas seguro que quieres continuar?",
-                showModal = showModal,
-                dismissAction = {showModal = false},
-                confirmAction = {particularOrderViewModel.viewModelScope.launch {
-                    particularOrderViewModel.onDeleteOrder()
-                    showModal = false
-                }}
-            )
+
 
         }
     }
-
-
 }

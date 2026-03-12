@@ -25,44 +25,50 @@ fun AddClientScreen(clientsViewModel: ClientsViewModel) {
         headerTitle = "Agregar Cliente"
     ) {
 
-        DisposableEffect(Unit) {
-            onDispose {
-                clientsViewModel.resetInputs()
-            }
-        }
+        item {
 
-        TextFieldComponent(
-            value = name,
-            onValueChange = clientsViewModel::onNameChange,
-            placeholder = "Nombre",
-            spacerHeight = 20.dp,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        TextFieldComponent(
-            value = phone,
-            onValueChange = clientsViewModel::onPhoneChange,
-            placeholder = "Numero de telefono",
-            spacerHeight = 20.dp,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        ButtonComponent(
-            text = "Guardar",
-            modifier = Modifier.fillMaxWidth(),
-            enabled = name != "" && phone != "",
-            onClick = {
-                clientsViewModel.viewModelScope.launch {
-                    clientsViewModel.insertClient(
-                        ClientEntity(
-                            id = UUID.randomUUID().toString(),
-                            name = name,
-                            phone = phone,
-                            sended = false
-                        )
-                    )
+            DisposableEffect(Unit) {
+                onDispose {
+                    clientsViewModel.resetInputs()
                 }
             }
-        )
+
+            TextFieldComponent(
+                value = name,
+                onValueChange = clientsViewModel::onNameChange,
+                placeholder = "Nombre",
+                spacerHeight = 20.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            TextFieldComponent(
+                value = phone,
+                onValueChange = clientsViewModel::onPhoneChange,
+                placeholder = "Numero de telefono",
+                spacerHeight = 20.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            ButtonComponent(
+                text = "Guardar",
+                modifier = Modifier.fillMaxWidth(),
+                enabled = name != "" && phone != "",
+                onClick = {
+                    clientsViewModel.viewModelScope.launch {
+                        clientsViewModel.insertClient(
+                            ClientEntity(
+                                id = UUID.randomUUID().toString(),
+                                name = name,
+                                phone = phone,
+                                sended = false
+                            )
+                        )
+                    }
+                }
+            )
+
+        }
+
+
     }
 }

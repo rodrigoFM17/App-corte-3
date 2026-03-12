@@ -33,54 +33,58 @@ fun ParticularClientScreen(
         headerTitle = "Editar Cliente"
     ) {
 
-        DisposableEffect(Unit) {
-            onDispose {
-                clientsViewModel.resetInputs()
-            }
-        }
+        item {
 
-        TextFieldComponent(
-            value = name,
-            onValueChange = clientsViewModel::onNameChange,
-            placeholder = "Nombre",
-            spacerHeight = 20.dp,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        TextFieldComponent(
-            value = phone,
-            onValueChange = clientsViewModel::onPhoneChange,
-            placeholder = "Numero de telefono",
-            spacerHeight = 20.dp,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        ButtonComponent(
-            text = "Guardar",
-            modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                clientsViewModel.viewModelScope.launch {
-                    clientsViewModel.updateClient()
+            DisposableEffect(Unit) {
+                onDispose {
+                    clientsViewModel.resetInputs()
                 }
             }
-        )
 
-        ButtonComponent(
-            text = "Eliminar cliente",
-            modifier = Modifier.fillMaxWidth(),
-            negative = true,
-            onClick = {showModal = true}
-        )
+            TextFieldComponent(
+                value = name,
+                onValueChange = clientsViewModel::onNameChange,
+                placeholder = "Nombre",
+                spacerHeight = 20.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        Modal(
-            text = "Esta accion no se puede revertir y eliminara los pedidos a nombre de este cliente ¿Estas seguro que quieres continuar?",
-            showModal = showModal,
-            dismissAction = {showModal = false},
-            confirmAction = {clientsViewModel.viewModelScope.launch {
-                clientsViewModel.onDeleteClient(selectedClient!!)
-                showModal = false
-                clientsViewModel.navigateBack()
-            }}
-        )
+            TextFieldComponent(
+                value = phone,
+                onValueChange = clientsViewModel::onPhoneChange,
+                placeholder = "Numero de telefono",
+                spacerHeight = 20.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            ButtonComponent(
+                text = "Guardar",
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    clientsViewModel.viewModelScope.launch {
+                        clientsViewModel.updateClient()
+                    }
+                }
+            )
+
+            ButtonComponent(
+                text = "Eliminar cliente",
+                modifier = Modifier.fillMaxWidth(),
+                negative = true,
+                onClick = {showModal = true}
+            )
+
+            Modal(
+                text = "Esta accion no se puede revertir y eliminara los pedidos a nombre de este cliente ¿Estas seguro que quieres continuar?",
+                showModal = showModal,
+                dismissAction = {showModal = false},
+                confirmAction = {clientsViewModel.viewModelScope.launch {
+                    clientsViewModel.onDeleteClient(selectedClient!!)
+                    showModal = false
+                    clientsViewModel.navigateBack()
+                }}
+            )
+        }
+
     }
 }

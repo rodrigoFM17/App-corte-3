@@ -86,185 +86,188 @@ fun AddOrderScreen(ordersViewModel: OrdersViewModel){
         headerTitle = "Agregar Pedido"
     ) {
 
-        DropdownMenuComponent(
-            icon = Icons.Default.AccountCircle,
-            color = 0xFF525252,
-            iconColor = 0xFF7AB317,
-            contentDescription = "cliente",
-            placeholder = clientSelected?.name ?: "seleccione un cliente",
-            menuItems = clients.map { client ->
-                MenuItem(text = client.name, onClick = {ordersViewModel.onChangeClientId(client)})
-            }
+        item {
 
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        DatePickerComponent(
-            context = context,
-            onChangeDate = ordersViewModel::onChangeDate
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        if (products.isEmpty() && !searching) {
-            Text( text = "Aun no tienes ningun producto registrado, registra uno para empezar a registrar pedidos.")
-        } else {
-            Text(
-                text = "Selecciona un producto",
-                fontSize = 10.sp,
-                lineHeight = 12.sp
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-            SearchField(
-                value = searchedProduct,
-                onChangeValue = ordersViewModel::onChangeSearchedProduct,
-                placeholder = "nombre del producto",
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Table(
-                height = 200.dp,
-                tableContent = products.map { product ->
-                    TableRow(
-                        columns = listOf(
-                            TableColumn( text = product.name, weight = 2f),
-                            TableColumn( text = product.price.toString(), weight = 1f)
-                        ),
-                        onClick = { ordersViewModel.onSelectProduct(product) }
-                    )
+            DropdownMenuComponent(
+                icon = Icons.Default.AccountCircle,
+                color = 0xFF525252,
+                iconColor = 0xFF7AB317,
+                contentDescription = "cliente",
+                placeholder = clientSelected?.name ?: "seleccione un cliente",
+                menuItems = clients.map { client ->
+                    MenuItem(text = client.name, onClick = {ordersViewModel.onChangeClientId(client)})
                 }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = selectedProduct?.name ?: "",
-                color = Color(0xFF7AB317),
-                fontWeight = FontWeight.Bold,
-                fontSize = 25.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+            DatePickerComponent(
+                context = context,
+                onChangeDate = ordersViewModel::onChangeDate
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = "Ingresa la cantidad deseada",
-                fontSize = 10.sp,
-                lineHeight = 12.sp
-            )
-            Spacer(modifier = Modifier.height(10.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ButtonComponent(
-                    icon = Icons.Default.Add,
-                    onClick = ordersViewModel::onIncrementQuantity,
-                    modifier = Modifier.weight(1f),
-                    negative = true
+            Spacer(modifier = Modifier.height(20.dp))
+            if (products.isEmpty() && !searching) {
+                Text( text = "Aun no tienes ningun producto registrado, registra uno para empezar a registrar pedidos.")
+            } else {
+                Text(
+                    text = "Selecciona un producto",
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp
                 )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                SearchField(
+                    value = searchedProduct,
+                    onChangeValue = ordersViewModel::onChangeSearchedProduct,
+                    placeholder = "nombre del producto",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Table(
+                    height = 200.dp,
+                    tableContent = products.map { product ->
+                        TableRow(
+                            columns = listOf(
+                                TableColumn( text = product.name, weight = 2f),
+                                TableColumn( text = product.price.toString(), weight = 1f)
+                            ),
+                            onClick = { ordersViewModel.onSelectProduct(product) }
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = selectedProduct?.name ?: "",
+                    color = Color(0xFF7AB317),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Ingresa la cantidad deseada",
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp
+                )
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .weight(2f)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = quantity.toString(),
-                        textAlign = TextAlign.Center,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
+                    ButtonComponent(
+                        icon = Icons.Default.Add,
+                        onClick = ordersViewModel::onIncrementQuantity,
+                        modifier = Modifier.weight(1f),
+                        negative = true
                     )
 
-                    if(selectedProduct?.unit == UNIT.FRACC) {
-                        Spacer(modifier = Modifier.width(10.dp))
-                        DropdownMenuComponent(
-                            negative = true,
-                            padding = 5.dp,
-                            placeholder = fraccQuantity.toString(),
-                            fontSize = 15.sp,
-                            menuItems = listOf(
-                                MenuItem("1/1", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.NONE)}),
-                                MenuItem("1/4", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.QUARTER)}),
-                                MenuItem("1/2", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.HALF)}),
-                                MenuItem("3/4", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.THREE_QUARTERS)}),
-                            )
-                        )
-                    }
-                }
-
-                ButtonComponent(
-                    icon = Icons.Default.Remove,
-                    onClick = ordersViewModel::onDecrementQuantity,
-                    modifier = Modifier.weight(1f),
-                    negative = true
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-
-        ButtonComponent(
-            text = "Agregar producto",
-            enabled = selectedProduct != null,
-            onClick = ordersViewModel::onAddProduct,
-            negative = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        if (productsForOrder.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Color(0xFF353535))
-                    .verticalScroll(rememberScrollState())
-
-            ) {
-                Spacer(modifier = Modifier
-                    .background(Color(0xFF7AB317))
-                    .height(10.dp)
-                    .fillMaxWidth()
-                )
-                for( (i, product) in productsForOrder.withIndex()) {
                     Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
-                            .padding(10.dp)
+                            .weight(2f)
                     ) {
-                        Text( text = product.product.name, modifier = Modifier.weight(2f))
-                        Text(text = product.quantity.toString(), modifier = Modifier.weight(1f))
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = "Eliminar Producto",
-                            tint = Color(0xFF7AB317),
-                            modifier = Modifier.clickable {
-                                ordersViewModel.onDeleteProductForOrder(product)
-                            }
+                        Text(
+                            text = quantity.toString(),
+                            textAlign = TextAlign.Center,
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
                         )
+
+                        if(selectedProduct?.unit == UNIT.FRACC) {
+                            Spacer(modifier = Modifier.width(10.dp))
+                            DropdownMenuComponent(
+                                negative = true,
+                                padding = 5.dp,
+                                placeholder = fraccQuantity.toString(),
+                                fontSize = 15.sp,
+                                menuItems = listOf(
+                                    MenuItem("1/1", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.NONE)}),
+                                    MenuItem("1/4", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.QUARTER)}),
+                                    MenuItem("1/2", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.HALF)}),
+                                    MenuItem("3/4", { ordersViewModel.onSetFraccQuantity(FRACC_OPTIONS.THREE_QUARTERS)}),
+                                )
+                            )
+                        }
+                    }
+
+                    ButtonComponent(
+                        icon = Icons.Default.Remove,
+                        onClick = ordersViewModel::onDecrementQuantity,
+                        modifier = Modifier.weight(1f),
+                        negative = true
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            ButtonComponent(
+                text = "Agregar producto",
+                enabled = selectedProduct != null,
+                onClick = ordersViewModel::onAddProduct,
+                negative = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            if (productsForOrder.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .background(Color(0xFF353535))
+                        .verticalScroll(rememberScrollState())
+
+                ) {
+                    Spacer(modifier = Modifier
+                        .background(Color(0xFF7AB317))
+                        .height(10.dp)
+                        .fillMaxWidth()
+                    )
+                    for( (i, product) in productsForOrder.withIndex()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(if (i % 2 == 1) Color(0xFF5B5B5B) else Color(0xFF3C3C3C))
+                                .padding(10.dp)
+                        ) {
+                            Text( text = product.product.name, modifier = Modifier.weight(2f))
+                            Text(text = product.quantity.toString(), modifier = Modifier.weight(1f))
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Eliminar Producto",
+                                tint = Color(0xFF7AB317),
+                                modifier = Modifier.clickable {
+                                    ordersViewModel.onDeleteProductForOrder(product)
+                                }
+                            )
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
+                Text( text = "total: ", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Text( text = "$%.2f".format(total), fontSize = 50.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-            Text( text = "total: ", fontSize = 10.sp, fontWeight = FontWeight.Bold)
-            Text( text = "$%.2f".format(total), fontSize = 50.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(20.dp))
+            ButtonComponent(
+                text = "Guardar Pedido",
+                modifier = Modifier.fillMaxWidth(),
+                enabled = clientSelected != null && productsForOrder.isNotEmpty() && date != null,
+                onClick = {
+                    ordersViewModel.viewModelScope.launch {
+                        ordersViewModel.insertNewOrder()
+                    }
+                }
+            )
         }
 
-        ButtonComponent(
-            text = "Guardar Pedido",
-            modifier = Modifier.fillMaxWidth(),
-            enabled = clientSelected != null && productsForOrder.isNotEmpty() && date != null,
-            onClick = {
-                ordersViewModel.viewModelScope.launch {
-                    ordersViewModel.insertNewOrder()
-                }
-            }
-        )
     }
 }

@@ -1,6 +1,5 @@
 package com.example.appcorte3.Products.presentation
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Text
@@ -40,47 +40,51 @@ fun ProductsScreen(productsViewModel: ProductsViewModel) {
         headerTitle = "Productos"
     ) {
 
-        if(products.isEmpty() && !searching){
-            Text( text = "Aun no ha registrado ningun producto")
+        item {
 
-            ButtonComponent(
-                onClick = productsViewModel.navigateToAddProduct,
-                icon = Icons.Default.Add,
-                text = "Agregar un producto",
-                modifier = Modifier.fillMaxWidth()
-            )
-        } else {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-            ){
+            if(products.isEmpty() && !searching){
+                Text( text = "Aun no ha registrado ningun producto")
+
                 ButtonComponent(
                     onClick = productsViewModel.navigateToAddProduct,
                     icon = Icons.Default.Add,
-                    modifier = Modifier.fillMaxHeight()
+                    text = "Agregar un producto",
+                    modifier = Modifier.fillMaxWidth()
                 )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                SearchField(
-                    value = searchedProduct,
-                    onChangeValue = productsViewModel::onChangeSearchedProduct,
-                    placeholder = "nombre del producto"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Column {
-                for(product in products) {
-                    ProductCard(
-                        product,
-                        {productsViewModel.onSelectProduct(product)}
+            } else {
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                ){
+                    ButtonComponent(
+                        onClick = productsViewModel.navigateToAddProduct,
+                        icon = Icons.Default.Add,
+                        modifier = Modifier.fillMaxHeight()
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    SearchField(
+                        value = searchedProduct,
+                        onChangeValue = productsViewModel::onChangeSearchedProduct,
+                        placeholder = "nombre del producto"
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
+        }
+
+        items(
+            items = products,
+            key = {product -> product.id}
+        ) { product ->
+            ProductCard(
+                product,
+                {productsViewModel.onSelectProduct(product)}
+            )
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
     }

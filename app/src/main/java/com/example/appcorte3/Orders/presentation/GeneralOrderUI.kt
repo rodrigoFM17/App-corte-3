@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -46,28 +47,25 @@ fun GeneralOrderScreen(generalOrderViewModel: GeneralOrderViewModel) {
         headerTitle = "Lista de productos a comprar"
     ) {
 
-        DatePickerComponent(
-            context = LocalContext.current,
-            onChangeDate = {
-                generalOrderViewModel.viewModelScope.launch {
-                    generalOrderViewModel.onChangeDate(it)
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        )
-        Spacer(modifier = Modifier.height(20.dp))
+        item {
+            DatePickerComponent(
+                context = LocalContext.current,
+                onChangeDate = {
+                    generalOrderViewModel.viewModelScope.launch {
+                        generalOrderViewModel.onChangeDate(it)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+        }
 
         if (date != null) {
-//            productsToBuy.forEach { product ->
-//                ProductToBuyCard(product, {
-//                    generalOrderViewModel.viewModelScope.launch {
-//                        generalOrderViewModel.changeBoughtStatus(productId = product.id, bought = product.bought)
-//                    }
-//                })
-//                Spacer(modifier = Modifier.height(10.dp))
-//            }
-            generalProducts.forEach { generalProduct ->
+            items(
+                items = generalProducts,
+                key = { generalProducts -> generalProducts.products[0].id }
+            ) { generalProduct ->
                 GeneralProductCard(generalProduct) { orderProductId, bought ->
                     generalOrderViewModel.viewModelScope.launch {
                         generalOrderViewModel.changeBoughtStatus(
@@ -79,12 +77,13 @@ fun GeneralOrderScreen(generalOrderViewModel: GeneralOrderViewModel) {
                 Spacer(modifier = Modifier.height(20.dp))
             }
         } else {
-            Text(
-                text = "Seleccione una fecha para mostrar los productos a comprar",
-                fontSize = 20.sp
-            )
+            item {
+                Text(
+                    text = "Seleccione una fecha para mostrar los productos a comprar",
+                    fontSize = 20.sp
+                )
+            }
         }
-
 
     }
 

@@ -1,6 +1,7 @@
 package com.example.appcorte3.layouts
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,8 +27,9 @@ fun BottomNavigationBar(navController: NavHostController) {
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
-            .background(Color(0xFF353535))
+            .height(70.dp)
+            .background(Color(0xFF353535)),
+        horizontalArrangement = Arrangement.Center
     ) {
 
         ButtonComponent(

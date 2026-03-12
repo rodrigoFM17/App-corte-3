@@ -2,7 +2,6 @@ package com.example.appcorte3.Orders.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterList
@@ -22,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.appcorte3.Orders.presentation.components.OrderCard
@@ -51,82 +51,83 @@ fun OrdersScreen(ordersViewModel: OrdersViewModel) {
     }
 
     Container (
-        headerTitle = "Pedidos"
+        headerTitle = "Pedidos",
     ){
-        if(orders.isEmpty() && !filtering && !loading){
-            Text( text = "No tienes pedidos agendados")
-            ButtonComponent(
-                icon = Icons.Default.Add,
-                text = "Agregar pedido",
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    ordersViewModel.navigateToAddOrder()
-                }
-            )
-        } else if (orders.isEmpty() && loading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-            ){
+        item {
+            if(orders.isEmpty() && !filtering && !loading){
+                Text( text = "No tienes pedidos agendados")
                 ButtonComponent(
                     icon = Icons.Default.Add,
+                    text = "Agregar pedido",
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         ordersViewModel.navigateToAddOrder()
-                    },
-                    modifier = Modifier.fillMaxHeight()
+                    }
                 )
-                Spacer(modifier = Modifier.width(10.dp))
-                DropdownMenuComponent(
-                    placeholder = filter.toString(),
-                    padding = 10.dp,
-                    icon = Icons.Default.FilterList,
-                    negative = true,
-                    contentDescription = "filtros",
-                    menuItems = listOf(
-                        MenuItem(text = FILTER_OPTIONS.NONE.label, {ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                            FILTER_OPTIONS.NONE) }}),
-                        MenuItem(text = FILTER_OPTIONS.COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                            FILTER_OPTIONS.COMPLETED)}}),
-                        MenuItem(text = FILTER_OPTIONS.NO_COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                            FILTER_OPTIONS.NO_COMPLETED)}}),
-                        MenuItem(text = FILTER_OPTIONS.PAID.label, { ordersViewModel.viewModelScope.launch {ordersViewModel.onChangeFilterOption(
-                            FILTER_OPTIONS.PAID)}}),
-                        MenuItem(text = FILTER_OPTIONS.NO_PAID.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
-                            FILTER_OPTIONS.NO_PAID)}}),
-                    ),
+            } else if (orders.isEmpty() && loading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight()
+                        .height(IntrinsicSize.Min)
+                ){
+                    ButtonComponent(
+                        icon = Icons.Default.Add,
+                        onClick = {
+                            ordersViewModel.navigateToAddOrder()
+                        },
+                        modifier = Modifier.fillMaxHeight()
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    DropdownMenuComponent(
+                        placeholder = filter.toString(),
+                        padding = 10.dp,
+                        icon = Icons.Default.FilterList,
+                        negative = true,
+                        contentDescription = "filtros",
+                        menuItems = listOf(
+                            MenuItem(text = FILTER_OPTIONS.NONE.label, {ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                                FILTER_OPTIONS.NONE) }}),
+                            MenuItem(text = FILTER_OPTIONS.COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                                FILTER_OPTIONS.COMPLETED)}}),
+                            MenuItem(text = FILTER_OPTIONS.NO_COMPLETED.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                                FILTER_OPTIONS.NO_COMPLETED)}}),
+                            MenuItem(text = FILTER_OPTIONS.PAID.label, { ordersViewModel.viewModelScope.launch {ordersViewModel.onChangeFilterOption(
+                                FILTER_OPTIONS.PAID)}}),
+                            MenuItem(text = FILTER_OPTIONS.NO_PAID.label, { ordersViewModel.viewModelScope.launch { ordersViewModel.onChangeFilterOption(
+                                FILTER_OPTIONS.NO_PAID)}}),
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                ButtonComponent(
+                    text = "Ver lista de productos por fecha",
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = ordersViewModel.navigateToGeneralOrder
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
-            ButtonComponent(
-                text = "Ver lista de productos por fecha",
-                modifier = Modifier.fillMaxWidth(),
-                onClick = ordersViewModel.navigateToGeneralOrder
-            )
         }
 
-        Column {
+        items(
+            items = orders,
+            key = { order -> order.id},
+        ) { order ->
 
-            for(order in orders) {
-                Spacer(modifier = Modifier.height(20.dp))
-                OrderCard(
-                    order,
-                    {
-                        ordersViewModel.onSelectParticular(order)
-                    }
-
-                )
-            }
+            OrderCard(
+                order,
+                { ordersViewModel.onSelectParticular(order) }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
     }

@@ -57,107 +57,113 @@ fun ParticularProductScreen(
     Container(
         headerTitle = "Edicion de Producto"
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
 
-            DisposableEffect(Unit) {
-                onDispose {
-                    productsViewModel.resetInputs()
-                }
-            }
+        item {
 
-            product?.let {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                TextFieldComponent(
-                    placeholder = name,
-                    value = name,
-                    spacerHeight = 20.dp,
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = productsViewModel::onChangeProductName
-                )
-
-                PriceInput(
-                    integers = integers,
-                    decimals = decimals,
-                    onChangePriceIntegers = productsViewModel::onChangePriceIntegers,
-                    onChangePriceDecimals = productsViewModel::onChangePriceDecimals
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Box {
-                    Row (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF353535))
-                            .padding(10.dp)
-                            .clickable { showUnits = !showUnits },
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = it.unit.toString(),
-                        )
-                        Icon(Icons.Default.ArrowDropDown,
-                            contentDescription = "desplegar")
+                DisposableEffect(Unit) {
+                    onDispose {
+                        productsViewModel.resetInputs()
                     }
+                }
 
-                    DropdownMenu(
-                        expanded = showUnits,
-                        onDismissRequest = {showUnits = false},
-                    ) {
-                        if (it.unit == UNIT.INT) {
-                            DropdownMenuItem(
-                                text = { Text( text = UNIT.FRACC.toString()) },
-                                onClick = {
-                                    productsViewModel.onChangeProductUnit(UNIT.FRACC)
-                                    showUnits = false
-                                }
+                product?.let {
+
+                    TextFieldComponent(
+                        placeholder = name,
+                        value = name,
+                        spacerHeight = 20.dp,
+                        modifier = Modifier.fillMaxWidth(),
+                        onValueChange = productsViewModel::onChangeProductName
+                    )
+
+                    PriceInput(
+                        integers = integers,
+                        decimals = decimals,
+                        onChangePriceIntegers = productsViewModel::onChangePriceIntegers,
+                        onChangePriceDecimals = productsViewModel::onChangePriceDecimals
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Box {
+                        Row (
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0xFF353535))
+                                .padding(10.dp)
+                                .clickable { showUnits = !showUnits },
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = it.unit.toString(),
                             )
-                        } else {
-                            DropdownMenuItem(
-                                text = { Text( text = UNIT.INT.toString()) },
-                                onClick = {
-                                    productsViewModel.onChangeProductUnit(UNIT.INT)
-                                    showUnits = false
-                                }
-                            )
+                            Icon(Icons.Default.ArrowDropDown,
+                                contentDescription = "desplegar")
+                        }
+
+                        DropdownMenu(
+                            expanded = showUnits,
+                            onDismissRequest = {showUnits = false},
+                        ) {
+                            if (it.unit == UNIT.INT) {
+                                DropdownMenuItem(
+                                    text = { Text( text = UNIT.FRACC.toString()) },
+                                    onClick = {
+                                        productsViewModel.onChangeProductUnit(UNIT.FRACC)
+                                        showUnits = false
+                                    }
+                                )
+                            } else {
+                                DropdownMenuItem(
+                                    text = { Text( text = UNIT.INT.toString()) },
+                                    onClick = {
+                                        productsViewModel.onChangeProductUnit(UNIT.INT)
+                                        showUnits = false
+                                    }
+                                )
+                            }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    ButtonComponent(
+                        text = "Guardar cambios",
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {productsViewModel.viewModelScope.launch {
+                            productsViewModel.onSaveChanges(it)
+                        }}
+                    )
+
+                    ButtonComponent(
+                        text = "Eliminar Producto",
+                        negative = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {showModal = true}
+                    )
+
+                    Modal (
+                        text = "Esta accion no se puede revertir y eliminara el producto en todos los pedidos donde se encontraba ¿Estas seguro que quieres continuar?",
+                        showModal = showModal,
+                        dismissAction = {showModal = false},
+                        confirmAction = { productsViewModel.viewModelScope.launch {
+                            productsViewModel.onDeleteProduct(product!!)
+                            showModal = false
+                            productsViewModel.navigateBack()
+                        }}
+                    )
+
                 }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                ButtonComponent(
-                    text = "Guardar cambios",
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {productsViewModel.viewModelScope.launch {
-                        productsViewModel.onSaveChanges(it)
-                    }}
-                )
-
-                ButtonComponent(
-                    text = "Eliminar Producto",
-                    negative = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {showModal = true}
-                )
-
-                Modal (
-                    text = "Esta accion no se puede revertir y eliminara el producto en todos los pedidos donde se encontraba ¿Estas seguro que quieres continuar?",
-                    showModal = showModal,
-                    dismissAction = {showModal = false},
-                    confirmAction = { productsViewModel.viewModelScope.launch {
-                        productsViewModel.onDeleteProduct(product!!)
-                        showModal = false
-                        productsViewModel.navigateBack()
-                    }}
-                )
+                    ?: Text(text = "No existe este producto")
 
             }
-                ?: Text(text = "No existe este producto")
 
         }
+
     }
 }

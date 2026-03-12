@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.appcorte3.components.ButtonComponent
-import com.example.appcorte3.components.Modal
 import com.example.appcorte3.layouts.Container
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -44,25 +44,28 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
         headerTitle = "Configuracion"
     ) {
 
-        ButtonComponent(
-            text = "Exportar Base de datos",
-            onClick = {
-                val dateString = LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-                exportLauncher.launch("respaldo_bd_sgp_${dateString}")
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(20.dp))
+        item {
 
-        ButtonComponent(
-            text = "Importar Base de datos",
-            onClick = { importLauncher.launch(arrayOf("application/zip"))},
-            negative = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Text(text = "Esta accion puede causar perdida de datos")
+            ButtonComponent(
+                text = "Exportar Base de datos",
+                onClick = {
+                    val dateString = LocalDateTime.now()
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+                    exportLauncher.launch("respaldo_bd_sgp_${dateString}")
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            ButtonComponent(
+                text = "Importar Base de datos",
+                onClick = { importLauncher.launch(arrayOf("application/zip"))},
+                negative = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(text = "Esta accion puede causar perdida de datos", fontSize = 12.sp)
+        }
+
 
     }
-
 }
